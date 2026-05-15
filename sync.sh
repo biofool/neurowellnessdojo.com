@@ -60,7 +60,6 @@ EXCLUDES=(
     --exclude='.cache/'
     --exclude='private/'
     --exclude='review-queue/'
-    --exclude='QuantumAikido/'
     --exclude='tests/'
     --exclude='htmlcov/'
     --exclude='reel/'
@@ -201,11 +200,7 @@ build_excludes() {
     case "$scope" in
         interviews)
             # Include Interviews/, exclude other server-only
-            excl+=(--exclude='.well-known/' --exclude='cgi-bin/' --exclude='QuantumAikido/')
-            ;;
-        neurowellness)
-            # Include QuantumAikido/, exclude other server-only
-            excl+=(--exclude='.well-known/' --exclude='cgi-bin/' --exclude='Interviews/')
+            excl+=(--exclude='.well-known/' --exclude='cgi-bin/')
             ;;
         all)
             # Include everything server-side (only protect .well-known and cgi-bin)
@@ -618,7 +613,7 @@ case "$CMD" in
         ;;
     media)
         # Sync ClipQuotes and Berkeley video folders directly to peec.biz:/public_html/
-        # These are large media dirs managed outside of git — never go through neurowellness.com/
+        # These are large media dirs managed outside of git — never go through neurowellnessdojo.com/
         MEDIA_USER="$PROD_USER"
         MEDIA_HOST="$PROD_HOST"
         MEDIA_BASE="public_html/"
@@ -678,7 +673,7 @@ case "$CMD" in
     hash)
         _env="${LOCAL_PATH}.env"
         SECRET_PREFIX=$(grep "^SECRET_PREFIX=" "$_env" 2>/dev/null | cut -d= -f2-)
-        SECRET_PREFIX="${SECRET_PREFIX:-quantum-aikido-videos-}"
+        SECRET_PREFIX="${SECRET_PREFIX:-neurowellnessdojo-}"
         HASH_LENGTH=$(grep "^HASH_LENGTH=" "$_env" 2>/dev/null | cut -d= -f2-)
         HASH_LENGTH="${HASH_LENGTH:-12}"
         unset _env
@@ -740,8 +735,7 @@ case "$CMD" in
         echo "Upload scopes (for deploy/upload/dryrun):"
         echo "  (none)             - Site files only — git-tracked HTML/CSS/JS/PHP (default)"
         echo "  interviews         - Also sync Interviews/ dir"
-        echo "  neurowellness            - Also sync neurowellness/ dir"
-        echo "  all                - Sync everything (interviews + neurowellness)"
+        echo "  all                - Sync everything including server-managed dirs"
         echo ""
         echo "File management:"
         echo "  Only web-facing files (HTML/CSS/JS/PHP/images) are uploaded by default."
