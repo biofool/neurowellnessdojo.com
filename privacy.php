@@ -1,8 +1,10 @@
 <?php
+$current_page = 'privacy';
 $page_title = 'Privacy Policy — Neuro Wellness Dojo';
 include __DIR__ . '/includes/head.php';
 ?>
 
+<div class="container">
 <article class="prose">
 
   <h1>Privacy Policy</h1>
@@ -78,5 +80,6 @@ include __DIR__ . '/includes/head.php';
   <p class="back"><a href="/">Back to start</a></p>
 
 </article>
+</div>
 
 <?php include __DIR__ . '/includes/footer.php'; ?>

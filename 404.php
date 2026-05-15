@@ -4,6 +4,7 @@ $page_title = 'Page Not Found';
 include __DIR__ . '/includes/head.php';
 ?>
 
+<div class="container">
 <article>
   <header class="hero">
     <h1>Page not found</h1>
@@ -12,5 +13,6 @@ include __DIR__ . '/includes/head.php';
     <p class="cta"><a class="button" href="/">Return home</a></p>
   </header>
 </article>
+</div>
 
 <?php include __DIR__ . '/includes/footer.php'; ?>

@@ -3,6 +3,7 @@ $page_title = 'Thanks — Neuro Wellness Dojo';
 include __DIR__ . '/includes/head.php';
 ?>
 
+<div class="container">
 <article class="thank-you">
 
   <h1>Thanks.</h1>
@@ -14,5 +15,6 @@ include __DIR__ . '/includes/head.php';
   <p class="back"><a href="/">Back to start</a></p>
 
 </article>
+</div>
 
 <?php include __DIR__ . '/includes/footer.php'; ?>

@@ -10,9 +10,9 @@ DirectoryIndex index.php
 </DirectoryMatch>
 
 # Force HTTPS (uncomment after installing SSL):
-# RewriteEngine On
-# RewriteCond %{HTTPS} !=on
-# RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+RewriteEngine On
+RewriteCond %{HTTPS} !=on
+RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
 
 # Modern 404 routing
 ErrorDocument 404 /404.php
@@ -27,5 +27,5 @@ ServerSignature Off
 
 # Cache CSS for a week
 <FilesMatch "\.css$">
-    Header set Cache-Control "max-age=604800, public"
+    Header set Cache-Control "max-age=600, public"
 </FilesMatch>

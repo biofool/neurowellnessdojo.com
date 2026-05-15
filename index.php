@@ -1,6 +1,7 @@
 <?php
 declare(strict_types=1);
 
+$current_page = 'home';
 $config = require __DIR__ . '/config.php';
 require __DIR__ . '/includes/mail.php';
 nwd_notify_visit($config, 'home');
@@ -20,6 +21,7 @@ $page_title = 'Neuro Wellness Dojo';
 include __DIR__ . '/includes/head.php';
 ?>
 
+<div class="container">
 <article>
 
   <header class="hero">
@@ -106,5 +108,6 @@ include __DIR__ . '/includes/head.php';
   </section>
 
 </article>
+</div>
 
 <?php include __DIR__ . '/includes/footer.php'; ?>

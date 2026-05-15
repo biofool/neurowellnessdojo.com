@@ -1,36 +1,93 @@
-/* Neuro Wellness Dojo
-   A calm, letter-like landing page. Single column. Generous whitespace.
-   No tricks, no animations, no card stacks.                              */
+/* Neuro Wellness Dojo — dark theme, adapted from Quantum Aikido */
 
 :root {
-    --bg: #f8f5ee;
-    --ink: #2a3137;
-    --ink-soft: #515861;
-    --rule: #e5dfd0;
-    --accent: #5a7361;          /* muted sage */
-    --accent-dark: #3f5447;
-    --serif: 'Lora', Georgia, 'Times New Roman', serif;
-    --sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-    --measure: 36rem;
+    --primary-bg: #0f172a;
+    --secondary-bg: #1e293b;
+    --accent: #8b5cf6;
+    --accent-light: #a78bfa;
+    --text-primary: #f1f5f9;
+    --text-secondary: #cbd5e1;
+    --text-muted: #94a3b8;
+    --border: #334155;
+    --sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+    --measure: 44rem;
 }
 
-* { box-sizing: border-box; }
+* { margin: 0; padding: 0; box-sizing: border-box; }
 
-html, body {
-    margin: 0;
-    padding: 0;
-    background: var(--bg);
-    color: var(--ink);
+html { scroll-behavior: smooth; }
+
+body {
     font-family: var(--sans);
-    font-size: 18px;
-    line-height: 1.65;
+    background-color: var(--primary-bg);
+    color: var(--text-primary);
+    line-height: 1.6;
     -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
+}
+
+/* --- Header / Nav --- */
+
+.skip-link {
+    position: absolute;
+    top: -40px;
+    left: 0;
+    background: var(--accent);
+    color: white;
+    padding: 0.5rem 1rem;
+    z-index: 1000;
+    transition: top 0.3s ease;
+}
+.skip-link:focus { top: 0; }
+
+header {
+    padding: 1rem 0;
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background-color: var(--primary-bg);
+}
+
+.logo {
+    font-size: 1.25rem;
+    font-weight: 500;
+    color: var(--text-primary);
+    text-decoration: none;
+}
+
+.header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.nav-links {
+    display: flex;
+    gap: 2rem;
+    list-style: none;
+    flex-wrap: wrap;
+}
+
+.nav-links a {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.nav-links a:hover { color: var(--accent-light); }
+
+/* --- Layout --- */
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 2rem;
 }
 
 main {
     min-height: 80vh;
-    padding: 4rem 1.5rem 2rem;
+    padding: 2rem 0;
 }
 
 article {
@@ -38,46 +95,42 @@ article {
     margin: 0 auto;
 }
 
+section {
+    padding: 3rem 0;
+    border-bottom: 1px solid var(--border);
+}
+
+section:last-of-type { border-bottom: none; }
+
+/* --- Typography --- */
+
 h1, h2, h3 {
-    font-family: var(--serif);
-    font-weight: 500;
-    color: var(--ink);
-    line-height: 1.25;
-    letter-spacing: -0.005em;
+    font-weight: 300;
+    letter-spacing: -0.02em;
+    line-height: 1.2;
 }
 
-h1 {
-    font-size: 2.25rem;
-    margin: 0 0 0.5rem;
-}
-
-h2 {
-    font-size: 1.5rem;
-    margin: 3.5rem 0 1rem;
-}
-
-h3 {
-    font-size: 1.125rem;
-    margin: 2rem 0 0.5rem;
-    font-style: italic;
-}
+h1 { font-size: 2.5rem; margin: 0 0 0.5rem; }
+h2 { font-size: 1.75rem; margin: 0 0 1rem; }
+h3 { font-size: 1.25rem; margin: 1.5rem 0 0.5rem; }
 
 p {
-    margin: 0 0 1.2rem;
+    margin: 0 0 1rem;
+    color: var(--text-secondary);
 }
 
 a {
-    color: var(--accent-dark);
-    text-decoration: underline;
-    text-decoration-thickness: 1px;
-    text-underline-offset: 3px;
+    color: var(--accent-light);
+    text-decoration: none;
+    transition: color 0.3s ease;
 }
 
-a:hover { color: var(--ink); }
+a:hover { color: var(--accent); }
 
 ul {
-    padding-left: 1.25rem;
-    margin: 0 0 1.2rem;
+    padding-left: 1.5rem;
+    margin: 0 0 1rem;
+    color: var(--text-secondary);
 }
 
 li { margin-bottom: 0.4rem; }
@@ -85,40 +138,74 @@ li { margin-bottom: 0.4rem; }
 /* --- Hero --- */
 
 .hero {
-    padding-bottom: 1rem;
+    padding: 2rem 0 1rem;
 }
 
 .hero .lede {
-    font-family: var(--serif);
+    font-size: 1.15rem;
+    color: var(--accent-light);
     font-style: italic;
-    font-size: 1.25rem;
-    color: var(--ink-soft);
-    margin: 0.5rem 0 1.75rem;
+    margin: 0.5rem 0 1.5rem;
 }
 
-.cta {
-    margin: 2rem 0 0;
+.hero p { margin-bottom: 1rem; }
+
+.cta { margin: 1.5rem 0 0; }
+
+/* --- Buttons --- */
+
+.btn {
+    display: inline-block;
+    padding: 1rem 2rem;
+    border-radius: 6px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    text-align: center;
+    cursor: pointer;
+    border: none;
 }
 
-/* --- Button --- */
+.btn-primary {
+    background-color: var(--accent);
+    color: white;
+}
 
+.btn-primary:hover {
+    background-color: var(--accent-light);
+    transform: translateY(-2px);
+    box-shadow: 0 10px 30px rgba(139, 92, 246, 0.3);
+}
+
+.btn-secondary {
+    border: 1px solid var(--accent);
+    color: var(--accent-light);
+    background: transparent;
+}
+
+.btn-secondary:hover {
+    background-color: rgba(139, 92, 246, 0.1);
+}
+
+/* Legacy .button class maps to .btn-primary */
 .button {
     display: inline-block;
-    background: var(--accent);
-    color: #fff;
-    text-decoration: none;
-    padding: 0.85rem 1.5rem;
-    border: none;
-    border-radius: 2px;
-    font: 500 1rem/1 var(--sans);
-    letter-spacing: 0.01em;
+    padding: 1rem 2rem;
+    border-radius: 6px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    text-align: center;
     cursor: pointer;
-    transition: background 120ms ease;
+    border: none;
+    background-color: var(--accent);
+    color: white;
+    text-decoration: none;
 }
 
 .button:hover, .button:focus {
-    background: var(--accent-dark);
-    color: #fff;
+    background-color: var(--accent-light);
+    transform: translateY(-2px);
+    box-shadow: 0 10px 30px rgba(139, 92, 246, 0.3);
+    color: white;
 }
 
 .button .parenthetical {
@@ -127,52 +214,52 @@ li { margin-bottom: 0.4rem; }
     margin-left: 0.25rem;
 }
 
-/* --- Sections --- */
+/* --- Sections / Cards --- */
 
-section {
-    border-top: 1px solid var(--rule);
-    padding-top: 0.5rem;
+.concept {
+    background-color: var(--secondary-bg);
+    padding: 1.5rem;
+    border-radius: 8px;
+    border-left: 3px solid var(--accent);
+    margin-bottom: 1rem;
 }
 
-.hero, section.intake, section.faq, .thank-you, .prose {
-    border-top: none;
+.concept h3 {
+    color: var(--accent-light);
+    margin-top: 0;
 }
 
 /* --- Intake form --- */
 
 section.intake {
-    background: #fff;
-    border: 1px solid var(--rule);
-    border-radius: 2px;
-    padding: 2rem 1.75rem;
-    margin: 4rem 0;
+    background: var(--secondary-bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 2rem;
+    margin: 3rem 0;
 }
 
-section.intake h2 {
-    margin-top: 0;
-}
+section.intake h2 { margin-top: 0; }
 
-.field {
-    margin-bottom: 1.25rem;
-}
+.field { margin-bottom: 1.25rem; }
 
 .field label {
     display: block;
     margin-bottom: 0.35rem;
     font-size: 0.95rem;
-    color: var(--ink-soft);
+    color: var(--text-muted);
 }
 
 .field input,
 .field textarea {
     width: 100%;
-    padding: 0.7rem 0.85rem;
-    border: 1px solid var(--rule);
-    border-radius: 2px;
-    background: #fdfcf8;
+    padding: 0.75rem 1rem;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: var(--primary-bg);
     font: 400 1rem/1.5 var(--sans);
-    color: var(--ink);
-    transition: border-color 120ms ease;
+    color: var(--text-primary);
+    transition: border-color 0.3s ease;
 }
 
 .field input:focus,
@@ -188,12 +275,12 @@ section.intake h2 {
 
 .reassurance {
     font-size: 0.95rem;
-    color: var(--ink-soft);
+    color: var(--text-muted);
     font-style: italic;
     margin: 1.25rem 0;
 }
 
-/* Honeypot — visually hidden but reachable to bots */
+/* Honeypot */
 .hp {
     position: absolute;
     left: -9999px;
@@ -205,49 +292,104 @@ section.intake h2 {
 
 /* --- FAQ --- */
 
-.faq h2 { margin-top: 4rem; }
-.faq h3 { font-style: italic; color: var(--ink-soft); }
+.faq h2 { margin-top: 3rem; }
+.faq h3 { color: var(--text-muted); font-style: italic; }
 .faq h3 + p { margin-top: 0; }
 
 /* --- Thank you / privacy --- */
 
-.thank-you, .prose {
-    padding-top: 2rem;
-}
+.thank-you, .prose { padding-top: 2rem; }
 
 .prose h1 { margin-bottom: 0.5rem; }
 
 .prose .effective {
-    color: var(--ink-soft);
+    color: var(--text-muted);
     font-style: italic;
     margin-bottom: 2rem;
 }
 
-.back {
-    margin-top: 3rem;
-    font-size: 0.95rem;
-}
+.back { margin-top: 3rem; font-size: 0.95rem; }
 
 /* --- Footer --- */
 
 footer {
-    border-top: 1px solid var(--rule);
-    padding: 2rem 1.5rem;
+    border-top: 1px solid var(--border);
+    padding: 2rem 0;
+}
+
+.footer-bottom {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
     text-align: center;
-    color: var(--ink-soft);
-    font-size: 0.875rem;
 }
 
-footer a {
-    color: var(--ink-soft);
+.footer-legal {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
 }
 
-/* --- Small screens --- */
+.footer-legal a {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+}
 
-@media (max-width: 480px) {
-    body { font-size: 17px; }
-    main { padding: 2.5rem 1.25rem 1.5rem; }
-    h1 { font-size: 1.85rem; }
-    h2 { font-size: 1.35rem; margin-top: 2.5rem; }
-    section.intake { padding: 1.5rem 1.25rem; margin: 2.5rem 0; }
+.footer-legal a:hover { color: var(--accent-light); }
+
+.footer-legal-separator {
+    width: 4px;
+    height: 4px;
+    background-color: var(--text-muted);
+    border-radius: 50%;
+    opacity: 0.5;
+}
+
+.footer-copyright-line {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+}
+
+/* --- Focus / Accessibility --- */
+
+a:focus,
+button:focus {
+    outline: 2px solid var(--accent-light);
+    outline-offset: 2px;
+}
+
+a:focus:not(:focus-visible),
+button:focus:not(:focus-visible) { outline: none; }
+
+a:focus-visible,
+button:focus-visible {
+    outline: 2px solid var(--accent-light);
+    outline-offset: 2px;
+}
+
+/* --- Reduced motion --- */
+
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+}
+
+/* --- Mobile --- */
+
+@media (max-width: 768px) {
+    h1 { font-size: 2rem; }
+    h2 { font-size: 1.5rem; }
+
+    .container { padding: 0 1.25rem; }
+    main { padding: 1.5rem 0; }
+    section { padding: 2rem 0; }
+
+    .nav-links { gap: 1rem; font-size: 0.85rem; }
+
+    section.intake { padding: 1.5rem 1.25rem; margin: 2rem 0; }
 }
