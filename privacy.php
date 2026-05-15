@@ -6,7 +6,7 @@ include __DIR__ . '/includes/head.php';
 <article class="prose">
 
   <h1>Privacy Policy</h1>
-  <p class="effective">Effective: [SET ON LAUNCH]</p>
+  <p class="effective">Effective: May 14, 2026</p>
 
   <h2>Who we are</h2>
   <p>Neuro Wellness Dojo is a coaching practice offering nervous-system self-regulation coaching by remote session (WhatsApp and Zoom). Our online home is neurowellnessdojo.com. This site is operated by Kenneth Kron.</p>

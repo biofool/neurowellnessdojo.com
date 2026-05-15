@@ -73,4 +73,3 @@ Google Apps Script webhook deployed separately. Receives POST from `submit.php`,
 
 - `sync.sh` has wrong domain references (quantumaikido.com) — copy-paste artifact; fix before running
 - `robots.txt` references `/sitemap.xml` which does not exist
-- `privacy.php` has `[SET ON LAUNCH]` placeholders
