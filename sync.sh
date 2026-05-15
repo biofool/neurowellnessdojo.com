@@ -1,8 +1,10 @@
 #!/bin/bash
 
 LOCAL_PATH="$(cd "$(dirname "$0")" && pwd)/"
-REMOTE_HOST="peec.biz"
-REMOTE_USER="peecbiz"
+PROD_HOST="peec.biz"
+PROD_USER="peecbiz"
+REMOTE_HOST="$PROD_HOST"
+REMOTE_USER="$PROD_USER"
 REMOTE_PATH="public_html/neurowellnessdojo.com/"
 [[ "$(hostname)" == "LAPTOP-8FVD6SBV" ]] && REMOTE_HOST="10.3.0.122"
 [[ "$REMOTE_HOST" =~ ^10\. ]] && REMOTE_PATH="~/projects/neurowellnessdojo.com/" && REMOTE_USER="kkron"
@@ -14,9 +16,8 @@ ARCHIVE_LOG_PATH="logs/neurowellnessdojo.com.peec.biz-ssl_log"
 
 if [[ "$(uname -s)" == "Linux" ]]; then
     RSYNC_BIN="rsync"
-    RSYNC_KEY="$HOME/.ssh/quantumaikido_ed25519"
     RSYNC_LOCAL="$LOCAL_PATH"
-    RSYNC_SSH_CMD="ssh -i $RSYNC_KEY -o IdentitiesOnly=yes -o StrictHostKeyChecking=no"
+    RSYNC_SSH_CMD="ssh -i $SSH_KEY -o IdentitiesOnly=yes -o StrictHostKeyChecking=no"
 else
     # cwrsync paths (Cygwin-based, needs /cygdrive/ and its own ssh)
     RSYNC_BIN="/c/ProgramData/chocolatey/lib/rsync/tools/bin/rsync.exe"
@@ -26,6 +27,7 @@ else
     RSYNC_LOCAL="/cygdrive/c/Users/sensie-ok/projects/neurowellnessdojo.com/"
     RSYNC_SSH_CMD="$RSYNC_SSH -i $RSYNC_KEY -o IdentitiesOnly=yes -o StrictHostKeyChecking=no -o UserKnownHostsFile=$RSYNC_KNOWN"
 fi
+PEER_SSH_CMD="$RSYNC_SSH_CMD"
 RSYNC_REMOTE="${REMOTE_USER}@${REMOTE_HOST}:${REMOTE_PATH}"
 
 # Load peer archive config from .env
@@ -39,11 +41,6 @@ unset _env
 # Peer uploads paths and SSH command
 UPLOADS_LOCAL="${RSYNC_LOCAL}private/uploads/"
 UPLOADS_REMOTE="${ARCHIVE_PEER_USER}@${ARCHIVE_PEER_HOST}:${ARCHIVE_PEER_PATH}"
-if [[ "$(uname -s)" == "Linux" ]]; then
-    PEER_SSH_CMD="ssh -i $RSYNC_KEY -o IdentitiesOnly=yes -o StrictHostKeyChecking=no"
-else
-    PEER_SSH_CMD="$RSYNC_SSH -i $RSYNC_KEY -o IdentitiesOnly=yes -o StrictHostKeyChecking=no -o UserKnownHostsFile=$RSYNC_KNOWN"
-fi
 
 # Always-excluded files — mirrors .gitignore plus additional local artifacts
 EXCLUDES=(
@@ -278,9 +275,9 @@ fetch_logs() {
     echo "Fetching latest log files..."
     mkdir -p "$LOGS_DIR"
 
-    # Logs always live on peec.biz regardless of which machine we're on
-    local LOG_HOST="peec.biz"
-    local LOG_USER="peecbiz"
+    # Logs always live on the prod host regardless of which machine we're on
+    local LOG_HOST="$PROD_HOST"
+    local LOG_USER="$PROD_USER"
 
     # Download current access log (overwrites - it's the live log)
     scp "${SCP_KEY_ARGS[@]}" "${LOG_USER}@${LOG_HOST}:~/${ACCESS_LOG_PATH}" "${LOGS_DIR}current-ssl.log" 2>/dev/null
@@ -622,8 +619,8 @@ case "$CMD" in
     media)
         # Sync ClipQuotes and Berkeley video folders directly to peec.biz:/public_html/
         # These are large media dirs managed outside of git — never go through neurowellness.com/
-        MEDIA_USER="peecbiz"
-        MEDIA_HOST="peec.biz"
+        MEDIA_USER="$PROD_USER"
+        MEDIA_HOST="$PROD_HOST"
         MEDIA_BASE="public_html/"
         # Derive the parent of the repo in the correct rsync path format
         MEDIA_RSYNC_BASE="${RSYNC_LOCAL%neurowellnessdojo.com/}"
