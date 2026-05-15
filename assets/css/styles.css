@@ -1,0 +1,253 @@
+/* Neuro Wellness Dojo
+   A calm, letter-like landing page. Single column. Generous whitespace.
+   No tricks, no animations, no card stacks.                              */
+
+:root {
+    --bg: #f8f5ee;
+    --ink: #2a3137;
+    --ink-soft: #515861;
+    --rule: #e5dfd0;
+    --accent: #5a7361;          /* muted sage */
+    --accent-dark: #3f5447;
+    --serif: 'Lora', Georgia, 'Times New Roman', serif;
+    --sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    --measure: 36rem;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+    margin: 0;
+    padding: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--sans);
+    font-size: 18px;
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+main {
+    min-height: 80vh;
+    padding: 4rem 1.5rem 2rem;
+}
+
+article {
+    max-width: var(--measure);
+    margin: 0 auto;
+}
+
+h1, h2, h3 {
+    font-family: var(--serif);
+    font-weight: 500;
+    color: var(--ink);
+    line-height: 1.25;
+    letter-spacing: -0.005em;
+}
+
+h1 {
+    font-size: 2.25rem;
+    margin: 0 0 0.5rem;
+}
+
+h2 {
+    font-size: 1.5rem;
+    margin: 3.5rem 0 1rem;
+}
+
+h3 {
+    font-size: 1.125rem;
+    margin: 2rem 0 0.5rem;
+    font-style: italic;
+}
+
+p {
+    margin: 0 0 1.2rem;
+}
+
+a {
+    color: var(--accent-dark);
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 3px;
+}
+
+a:hover { color: var(--ink); }
+
+ul {
+    padding-left: 1.25rem;
+    margin: 0 0 1.2rem;
+}
+
+li { margin-bottom: 0.4rem; }
+
+/* --- Hero --- */
+
+.hero {
+    padding-bottom: 1rem;
+}
+
+.hero .lede {
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 1.25rem;
+    color: var(--ink-soft);
+    margin: 0.5rem 0 1.75rem;
+}
+
+.cta {
+    margin: 2rem 0 0;
+}
+
+/* --- Button --- */
+
+.button {
+    display: inline-block;
+    background: var(--accent);
+    color: #fff;
+    text-decoration: none;
+    padding: 0.85rem 1.5rem;
+    border: none;
+    border-radius: 2px;
+    font: 500 1rem/1 var(--sans);
+    letter-spacing: 0.01em;
+    cursor: pointer;
+    transition: background 120ms ease;
+}
+
+.button:hover, .button:focus {
+    background: var(--accent-dark);
+    color: #fff;
+}
+
+.button .parenthetical {
+    opacity: 0.78;
+    font-weight: 400;
+    margin-left: 0.25rem;
+}
+
+/* --- Sections --- */
+
+section {
+    border-top: 1px solid var(--rule);
+    padding-top: 0.5rem;
+}
+
+.hero, section.intake, section.faq, .thank-you, .prose {
+    border-top: none;
+}
+
+/* --- Intake form --- */
+
+section.intake {
+    background: #fff;
+    border: 1px solid var(--rule);
+    border-radius: 2px;
+    padding: 2rem 1.75rem;
+    margin: 4rem 0;
+}
+
+section.intake h2 {
+    margin-top: 0;
+}
+
+.field {
+    margin-bottom: 1.25rem;
+}
+
+.field label {
+    display: block;
+    margin-bottom: 0.35rem;
+    font-size: 0.95rem;
+    color: var(--ink-soft);
+}
+
+.field input,
+.field textarea {
+    width: 100%;
+    padding: 0.7rem 0.85rem;
+    border: 1px solid var(--rule);
+    border-radius: 2px;
+    background: #fdfcf8;
+    font: 400 1rem/1.5 var(--sans);
+    color: var(--ink);
+    transition: border-color 120ms ease;
+}
+
+.field input:focus,
+.field textarea:focus {
+    outline: none;
+    border-color: var(--accent);
+}
+
+.field textarea {
+    resize: vertical;
+    min-height: 6rem;
+}
+
+.reassurance {
+    font-size: 0.95rem;
+    color: var(--ink-soft);
+    font-style: italic;
+    margin: 1.25rem 0;
+}
+
+/* Honeypot — visually hidden but reachable to bots */
+.hp {
+    position: absolute;
+    left: -9999px;
+    top: -9999px;
+    height: 0;
+    width: 0;
+    overflow: hidden;
+}
+
+/* --- FAQ --- */
+
+.faq h2 { margin-top: 4rem; }
+.faq h3 { font-style: italic; color: var(--ink-soft); }
+.faq h3 + p { margin-top: 0; }
+
+/* --- Thank you / privacy --- */
+
+.thank-you, .prose {
+    padding-top: 2rem;
+}
+
+.prose h1 { margin-bottom: 0.5rem; }
+
+.prose .effective {
+    color: var(--ink-soft);
+    font-style: italic;
+    margin-bottom: 2rem;
+}
+
+.back {
+    margin-top: 3rem;
+    font-size: 0.95rem;
+}
+
+/* --- Footer --- */
+
+footer {
+    border-top: 1px solid var(--rule);
+    padding: 2rem 1.5rem;
+    text-align: center;
+    color: var(--ink-soft);
+    font-size: 0.875rem;
+}
+
+footer a {
+    color: var(--ink-soft);
+}
+
+/* --- Small screens --- */
+
+@media (max-width: 480px) {
+    body { font-size: 17px; }
+    main { padding: 2.5rem 1.25rem 1.5rem; }
+    h1 { font-size: 1.85rem; }
+    h2 { font-size: 1.35rem; margin-top: 2.5rem; }
+    section.intake { padding: 1.5rem 1.25rem; margin: 2.5rem 0; }
+}

@@ -1,0 +1,31 @@
+DirectoryIndex index.php
+
+# Deny access to PHP includes and the config file directly.
+<FilesMatch "^(config\.php|config\.example\.php)$">
+    Require all denied
+</FilesMatch>
+
+<DirectoryMatch "/includes(/|$)">
+    Require all denied
+</DirectoryMatch>
+
+# Force HTTPS (uncomment after installing SSL):
+# RewriteEngine On
+# RewriteCond %{HTTPS} !=on
+# RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+# Modern 404 routing
+ErrorDocument 404 /404.php
+RewriteEngine On
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule . /404.php [L]
+
+# Sensible defaults
+Options -Indexes
+ServerSignature Off
+
+# Cache CSS for a week
+<FilesMatch "\.css$">
+    Header set Cache-Control "max-age=604800, public"
+</FilesMatch>
