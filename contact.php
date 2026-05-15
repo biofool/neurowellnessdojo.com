@@ -37,11 +37,6 @@ include __DIR__ . '/includes/head.php';
       <input type="hidden" name="csrf" value="<?= htmlspecialchars($_SESSION['csrf'], ENT_QUOTES, 'UTF-8') ?>">
       <input type="hidden" name="variant" value="<?= htmlspecialchars($variant, ENT_QUOTES, 'UTF-8') ?>">
 
-      <!-- Honeypot. Real visitors leave this empty; bots tend to fill it. -->
-      <div class="hp" aria-hidden="true">
-        <label>Website <input type="text" name="website" tabindex="-1" autocomplete="off"></label>
-      </div>
-
       <div class="field">
         <label for="name">Name</label>
         <input id="name" type="text" name="name" required maxlength="120" autocomplete="name">
@@ -57,7 +52,7 @@ include __DIR__ . '/includes/head.php';
         <textarea id="message" name="message" rows="4" maxlength="2000"></textarea>
       </div>
 
-      <p class="reassurance">Dr. Clemans will never see what you wrote.</p>
+      <p class="reassurance">Your comments are private between you and your coach.</p>
 
       <button type="submit" class="button">Send</button>
     </form>
