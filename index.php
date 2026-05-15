@@ -4,7 +4,6 @@ declare(strict_types=1);
 $current_page = 'home';
 $config = require __DIR__ . '/config.php';
 require __DIR__ . '/includes/mail.php';
-nwd_notify_visit($config, 'home');
 
 if (!empty($config['maintenance'])) {
     http_response_code(503);
@@ -14,11 +13,97 @@ if (!empty($config['maintenance'])) {
 
 require __DIR__ . '/includes/variant.php';
 
+$page_title = 'Neuro Wellness Dojo';
+include __DIR__ . '/includes/head.php';
+
+// Code gate — session started in head.php
+$code_error = false;
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['access_code'])) {
+    if (strcasecmp($_POST['access_code'], 'DrClemans') === 0) {
+        $_SESSION['clemans_unlocked'] = true;
+    } else {
+        $code_error = true;
+    }
+}
+$unlocked = !empty($_SESSION['clemans_unlocked']);
+
+nwd_notify_visit($config, 'home');
 $variant = nwd_variant($config);
 $t = nwd_terms($variant);
 
-$page_title = 'Neuro Wellness Dojo';
-include __DIR__ . '/includes/head.php';
+if (!$unlocked):
+?>
+
+<div class="container">
+<article>
+
+  <header class="hero">
+    <h1>Neuro Wellness Dojo</h1>
+    <p class="lede">Practical relaxation skills for dental anxiety.</p>
+    <p>We work one-on-one by video. You learn techniques you can use in the chair — drawn from forty years of aikido and somatic practice.</p>
+    <p class="cta"><a class="button" href="/contact.php">Get in touch</a></p>
+  </header>
+
+  <section>
+    <h2>What this is</h2>
+    <p><?= htmlspecialchars($t['opening_para'], ENT_QUOTES, 'UTF-8') ?></p>
+    <p>The skills are simple. They work whether or not you "believe in" them. They don't require quiet music, a special posture, or thinking positively. You can use them sitting in a dental chair.</p>
+  </section>
+
+  <section>
+    <h2>What a first session is like</h2>
+    <p>Twenty minutes. We meet on video. You describe what's going on for you with the dentist. Together you try one or two practices right then, in the call.</p>
+    <p>If it helps, we walk through the dental setting in your mind &mdash; the chair, the sounds, the moment when the door opens &mdash; so the practices are tied to where you'll actually use them.</p>
+    <p>If anything lands, we can keep going. If nothing does, you've lost nothing.</p>
+  </section>
+
+  <section>
+    <h2>Your coach</h2>
+    <p>Kenneth Kron has practiced aikido and <?= htmlspecialchars($t['discipline'], ENT_QUOTES, 'UTF-8') ?> for forty years, working directly with Robert Nadeau and Richard Moon. This is coaching, not therapy.</p>
+  </section>
+
+  <section>
+    <h2>The practice</h2>
+    <p>Neuro Wellness Dojo is built on a combined lineage of one hundred years of aikido and <?= htmlspecialchars($t['lineage_phrase'], ENT_QUOTES, 'UTF-8') ?>, drawn from several of the tradition's foundational teachers.</p>
+  </section>
+
+  <section class="faq">
+    <h2>Questions you might have</h2>
+
+    <h3>Is this therapy?</h3>
+    <p>No. This is coaching &mdash; practical skills you can use. If you're looking for therapy, please see a licensed therapist.</p>
+
+    <h3>What if I don't like it?</h3>
+    <p>If the first session isn't for you, that's the end of it. No follow-up sales pitch.</p>
+
+    <h3>What about my data?</h3>
+    <p>We don't share it, sell it, or use AI tools that retain it. Our <a href="/privacy.php">Privacy Policy</a> spells this out.</p>
+
+    <h3>Can I do this on my phone?</h3>
+    <p>Yes &mdash; WhatsApp or Zoom, whichever is easier.</p>
+  </section>
+
+  <section class="code-gate-inline">
+    <h2>Have a referral code?</h2>
+    <?php if ($code_error): ?>
+      <p class="error">That code wasn't recognized. Please check with your provider.</p>
+    <?php endif; ?>
+    <form method="post" action="/">
+      <div class="field">
+        <label for="access_code">Referral code</label>
+        <input id="access_code" type="text" name="access_code" required autocomplete="off">
+      </div>
+      <button type="submit" class="button">Continue</button>
+    </form>
+  </section>
+
+</article>
+</div>
+
+<?php include __DIR__ . '/includes/footer.php'; ?>
+<?php
+    exit;
+endif;
 ?>
 
 <div class="container">

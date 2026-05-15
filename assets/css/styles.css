@@ -379,6 +379,16 @@ button:focus-visible {
     }
 }
 
+/* --- Referral code section --- */
+
+.code-gate-inline { border-top: 1px solid var(--border); padding-top: 2.5rem; }
+
+.error {
+    color: #f87171;
+    font-size: 0.875rem;
+    margin-bottom: 1rem;
+}
+
 /* --- Mobile --- */
 
 @media (max-width: 768px) {
