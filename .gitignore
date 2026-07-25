@@ -1,0 +1,19 @@
+# Secrets & local config
+.env
+.env.*
+*.key
+*.pem
+credentials.json
+cookies.txt
+
+# Project config (contains site-specific values, never source-controlled)
+config.php
+
+# Devin local config (per-machine, not shared)
+.devin/config.local.json
+
+# Logs
+logs/
+
+# Test / cache
+.pytest_cache/

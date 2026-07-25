@@ -1,3 +1,5 @@
+<!-- AI coding config version: 2026-07-25 — sourced from biofool/starter template. Shared settings across all biofool projects; see ~/.codeium/windsurf/memories/shared_template_config.md -->
+
 # CLAUDE.md
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
@@ -9,11 +11,10 @@ Plain PHP 7.4+ landing page — no build step, no npm, no framework. Single mono
 ## Deployment
 
 ```bash
-# Deploy to production (rsync-based)
-./sync.sh
+./sync.sh --remote peec.biz
 ```
 
-`sync.sh` rsyncs to the remote host over SSH using `~/.ssh/quantumaikido_ed25519`. The script's host references are copy-pasted from another project; verify the target before running.
+`sync.sh` auto-detects the site name from its directory (`SITE_NAME`) and sets all remote paths accordingly — works for any site in `~/projects/<domain>/`. Uses `~/.ssh/quantumaikido_ed25519`.
 
 ## Configuration
 
@@ -69,7 +70,3 @@ Google Apps Script webhook deployed separately. Receives POST from `submit.php`,
 - Routes unknown paths to `404.php`
 - Caches CSS assets for 7 days
 
-## Known issues
-
-- `sync.sh` has wrong domain references (quantumaikido.com) — copy-paste artifact; fix before running
-- `robots.txt` references `/sitemap.xml` which does not exist
