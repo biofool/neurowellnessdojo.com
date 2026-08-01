@@ -33,11 +33,13 @@ if (!empty($_SESSION['last_submit']) && (time() - (int)$_SESSION['last_submit'])
 }
 
 // Pull and validate fields.
-$name    = trim((string)($_POST['name']    ?? ''));
-$email   = trim((string)($_POST['email']   ?? ''));
-$message = trim((string)($_POST['message'] ?? ''));
-$variant = (string)($_POST['variant'] ?? '');
-$variant = in_array($variant, ['A', 'B'], true) ? $variant : 'unknown';
+$name     = trim((string)($_POST['name']     ?? ''));
+$email    = trim((string)($_POST['email']    ?? ''));
+$message  = trim((string)($_POST['message']  ?? ''));
+$variant  = (string)($_POST['variant']  ?? '');
+$referral = trim((string)($_POST['referral'] ?? ''));
+$variant  = in_array($variant, ['A', 'B'], true) ? $variant : 'unknown';
+$referral = preg_replace('/[^A-Za-z0-9_\-]/', '', $referral);
 
 $errors = [];
 if ($name === '' || mb_strlen($name) > 120) {
@@ -59,10 +61,11 @@ if (!empty($errors)) {
 // Send to Kenneth.
 $subject  = 'Neuro Wellness Dojo — new intake';
 $body     = "New intake submission.\n\n"
-          . "Name:    {$name}\n"
-          . "Email:   {$email}\n"
-          . "Variant: {$variant}\n"
-          . "When:    " . date('c') . "\n\n"
+          . "Name:     {$name}\n"
+          . "Email:    {$email}\n"
+          . "Variant:  {$variant}\n"
+          . ($referral !== '' ? "Referral: {$referral}\n" : '')
+          . "When:     " . date('c') . "\n\n"
           . "What's bringing them here:\n"
           . "{$message}\n";
 
@@ -77,6 +80,7 @@ if (!empty($config['sheets_webhook_url'])) {
         'email'     => $email,
         'message'   => $message,
         'variant'   => $variant,
+        'referral'  => $referral,
         'timestamp' => date('c'),
     ]);
     $ctx = stream_context_create([

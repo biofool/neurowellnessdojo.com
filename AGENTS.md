@@ -137,3 +137,17 @@ local-descriptions, llm-context, answers, bx, search). They require a
 - **Deploy:** `./sync.sh --remote peec.biz` — `sync.sh` auto-detects the site name from its directory and sets remote paths accordingly. Uses `~/.ssh/quantumaikido_ed25519`.
 - **Config:** `config.php` is gitignored and never source-controlled. Copy from `config.example.php` and edit with actual values. Returns a PHP array consumed by every page via `require`.
 - See `CLAUDE.md` for full architecture details (request flow, A/B testing, email, sheet logging, security controls, Apache config).
+
+### Cloud strategy — CloudManagement coordination
+
+**CloudManagement** (`biofool/CloudManagement`, formerly `biofool/CloudBilling`) is the
+canonical source for cloud strategy across all biofool repos. When this repo
+changes where data is stored, where jobs run, adds/removes cloud resources, or
+changes its cloud provider/region/project, it MUST update:
+1. The CloudManagement inventory (`config/accounts.yaml` or Firestore)
+2. The CloudManagement PRD (`docs/PRD.md`) if the job-placement policy changes
+3. The `biofool/starter` template's cloud-strategy section
+
+This repo has no paid APIs (PHP landing page on peec.biz shared hosting), so
+the coordination rule rarely applies — but if a cloud resource is ever added,
+update CloudManagement.

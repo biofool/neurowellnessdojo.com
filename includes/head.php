@@ -15,7 +15,7 @@ if (empty($_SESSION['csrf'])) {
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="robots" content="index,follow">
+<meta name="robots" content="<?= htmlspecialchars($meta_robots ?? 'index,follow', ENT_QUOTES, 'UTF-8') ?>">
 <title><?= htmlspecialchars($page_title, ENT_QUOTES, 'UTF-8') ?></title>
 <link rel="stylesheet" href="/assets/css/styles.css">
 </head>

@@ -34,10 +34,12 @@ function nwd_notify_visit(array $config, string $page): void
     $ip = $_SERVER['REMOTE_ADDR'] ?? 'unknown';
     $ua = $_SERVER['HTTP_USER_AGENT'] ?? 'unknown';
     $url = ($_SERVER['REQUEST_SCHEME'] ?? 'https') . '://' . ($_SERVER['HTTP_HOST'] ?? 'localhost') . ($_SERVER['REQUEST_URI'] ?? '/');
+    $referer = $_SERVER['HTTP_REFERER'] ?? 'direct';
 
     $subject = 'Neuro Wellness Dojo — page visit: ' . $page;
     $body = "A visitor landed on {$page}.\n\n"
           . "URL: {$url}\n"
+          . "Referrer: {$referer}\n"
           . "IP: {$ip}\n"
           . "Time: " . date('c') . "\n"
           . "User-Agent: {$ua}\n";

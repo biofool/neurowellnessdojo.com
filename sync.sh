@@ -1,33 +1,36 @@
 #!/bin/bash
 
 LOCAL_PATH="$(cd "$(dirname "$0")" && pwd)/"
-PROD_HOST="peec.biz"
-PROD_USER="peecbiz"
-REMOTE_HOST="$PROD_HOST"
-REMOTE_USER="$PROD_USER"
-REMOTE_PATH="public_html/neurowellnessdojo.com/"
-[[ "$(hostname)" == "LAPTOP-8FVD6SBV" ]] && REMOTE_HOST="10.3.0.122"
-[[ "$REMOTE_HOST" =~ ^10\. ]] && REMOTE_PATH="~/projects/neurowellnessdojo.com/" && REMOTE_USER="kkron"
+SITE_NAME="$(basename "${LOCAL_PATH%/}")"
+REMOTE_HOST=""
+REMOTE_USER="peecbiz"
+REMOTE_PATH="public_html/${SITE_NAME}/"
 SSH_KEY="$HOME/.ssh/quantumaikido_ed25519"
+
+# Known remote servers: "host|user|path|description"
+KNOWN_REMOTES=(
+    "peec.biz|peecbiz|public_html/${SITE_NAME}/|Production server (peec.biz)"
+    "10.3.0.122|kkron|~/projects/${SITE_NAME}/|Local LAN server (10.3.0.122)"
+)
 SCP_KEY_ARGS=(-i "$SSH_KEY")
 LOGS_DIR="${LOCAL_PATH}/logs/"
-ACCESS_LOG_PATH="access-logs/neurowellnessdojo.com.peec.biz-ssl_log"
-ARCHIVE_LOG_PATH="logs/neurowellnessdojo.com.peec.biz-ssl_log"
+ACCESS_LOG_PATH="access-logs/${SITE_NAME}.peec.biz-ssl_log"
+ARCHIVE_LOG_PATH="logs/${SITE_NAME}.peec.biz-ssl_log"
 
 if [[ "$(uname -s)" == "Linux" ]]; then
     RSYNC_BIN="rsync"
+    RSYNC_KEY="$HOME/.ssh/quantumaikido_ed25519"
     RSYNC_LOCAL="$LOCAL_PATH"
-    RSYNC_SSH_CMD="ssh -i $SSH_KEY -o IdentitiesOnly=yes -o StrictHostKeyChecking=no"
+    RSYNC_SSH_CMD="ssh -i $RSYNC_KEY -o IdentitiesOnly=yes -o StrictHostKeyChecking=no"
 else
     # cwrsync paths (Cygwin-based, needs /cygdrive/ and its own ssh)
     RSYNC_BIN="/c/ProgramData/chocolatey/lib/rsync/tools/bin/rsync.exe"
     RSYNC_SSH="/cygdrive/c/ProgramData/chocolatey/lib/rsync/tools/bin/ssh.exe"
     RSYNC_KEY="/cygdrive/c/Users/sensie-ok/.ssh/quantumaikido_ed25519"
     RSYNC_KNOWN="/cygdrive/c/Users/sensie-ok/.ssh/known_hosts"
-    RSYNC_LOCAL="/cygdrive/c/Users/sensie-ok/projects/neurowellnessdojo.com/"
+    RSYNC_LOCAL="/cygdrive/c/Users/sensie-ok/websites/quantumaikido.com/"
     RSYNC_SSH_CMD="$RSYNC_SSH -i $RSYNC_KEY -o IdentitiesOnly=yes -o StrictHostKeyChecking=no -o UserKnownHostsFile=$RSYNC_KNOWN"
 fi
-PEER_SSH_CMD="$RSYNC_SSH_CMD"
 RSYNC_REMOTE="${REMOTE_USER}@${REMOTE_HOST}:${REMOTE_PATH}"
 
 # Load peer archive config from .env
@@ -41,6 +44,11 @@ unset _env
 # Peer uploads paths and SSH command
 UPLOADS_LOCAL="${RSYNC_LOCAL}private/uploads/"
 UPLOADS_REMOTE="${ARCHIVE_PEER_USER}@${ARCHIVE_PEER_HOST}:${ARCHIVE_PEER_PATH}"
+if [[ "$(uname -s)" == "Linux" ]]; then
+    PEER_SSH_CMD="ssh -i $RSYNC_KEY -o IdentitiesOnly=yes -o StrictHostKeyChecking=no"
+else
+    PEER_SSH_CMD="$RSYNC_SSH -i $RSYNC_KEY -o IdentitiesOnly=yes -o StrictHostKeyChecking=no -o UserKnownHostsFile=$RSYNC_KNOWN"
+fi
 
 # Always-excluded files — mirrors .gitignore plus additional local artifacts
 EXCLUDES=(
@@ -60,6 +68,7 @@ EXCLUDES=(
     --exclude='.cache/'
     --exclude='private/'
     --exclude='review-queue/'
+    --exclude='QuantumAikido/'
     --exclude='tests/'
     --exclude='htmlcov/'
     --exclude='reel/'
@@ -87,7 +96,7 @@ EXCLUDES=(
     --exclude='sync.sh'
     --exclude='qa-sync.bat'
     --exclude='cache-sync.bat'
-    --exclude='neurowellnessdojo.com/'
+    --exclude='quantumaikido.com/'
     --exclude='mirror/'
     # Non-web files: documents, local tools, and scripts never served from the site
     --exclude='*.pdf'
@@ -170,11 +179,15 @@ SCOPE=""
 HAS_VIDEO=0
 YES=0
 REMOTE_PATH_FLAG=""
+REMOTE_HOST_ARG=""
 _next_p=0
+_next_remote=0
 for arg in "$@"; do
     if [[ $_next_p -eq 1 ]]; then REMOTE_PATH_FLAG="$arg"; _next_p=0; continue; fi
+    if [[ $_next_remote -eq 1 ]]; then REMOTE_HOST_ARG="$arg"; _next_remote=0; continue; fi
     case "$arg" in
         -p) _next_p=1 ;;
+        --remote) _next_remote=1 ;;
         --video) HAS_VIDEO=1 ;;
         -y|--yes) YES=1 ;;
         upload|download|dryrun|cache|push-cache|pull-review|push-review|push-uploads|pull-uploads|logs|report|hash|deploy|media|help)
@@ -189,7 +202,47 @@ for arg in "$@"; do
             ;;
     esac
 done
-unset _next_p
+unset _next_p _next_remote
+
+# Resolve remote host — from --remote flag, menu selection, or exit
+_apply_known_remote() {
+    local host="$1"
+    for entry in "${KNOWN_REMOTES[@]}"; do
+        IFS='|' read -r rh ru rp rd <<< "$entry"
+        if [[ "$rh" == "$host" ]]; then
+            REMOTE_HOST="$rh"; REMOTE_USER="$ru"; REMOTE_PATH="$rp"
+            return 0
+        fi
+    done
+    REMOTE_HOST="$host"
+}
+
+if [[ -n "$REMOTE_HOST_ARG" ]]; then
+    _apply_known_remote "$REMOTE_HOST_ARG"
+elif [[ "$CMD" == "help" ]]; then
+    REMOTE_HOST="peec.biz"
+else
+    echo ""
+    echo "No remote server specified. Select one:"
+    echo ""
+    for i in "${!KNOWN_REMOTES[@]}"; do
+        IFS='|' read -r rh ru rp rd <<< "${KNOWN_REMOTES[$i]}"
+        printf "  %d) %-38s [%s@%s:%s]\n" "$((i+1))" "$rd" "$ru" "$rh" "$rp"
+    done
+    echo ""
+    read -p "Choice [1-${#KNOWN_REMOTES[@]}] or --remote hostname: " _REMOTE_CHOICE
+    if [[ "$_REMOTE_CHOICE" =~ ^[0-9]+$ ]] && (( _REMOTE_CHOICE >= 1 && _REMOTE_CHOICE <= ${#KNOWN_REMOTES[@]} )); then
+        IFS='|' read -r REMOTE_HOST REMOTE_USER REMOTE_PATH _rd <<< "${KNOWN_REMOTES[$((_REMOTE_CHOICE-1))]}"
+    elif [[ -n "$_REMOTE_CHOICE" ]]; then
+        _apply_known_remote "$_REMOTE_CHOICE"
+    else
+        echo "No remote specified. Exiting."
+        exit 1
+    fi
+    unset _REMOTE_CHOICE
+fi
+unset -f _apply_known_remote
+
 [[ -n "$REMOTE_PATH_FLAG" ]] && REMOTE_PATH="$REMOTE_PATH_FLAG"
 RSYNC_REMOTE="${REMOTE_USER}@${REMOTE_HOST}:${REMOTE_PATH}"
 
@@ -200,7 +253,11 @@ build_excludes() {
     case "$scope" in
         interviews)
             # Include Interviews/, exclude other server-only
-            excl+=(--exclude='.well-known/' --exclude='cgi-bin/')
+            excl+=(--exclude='.well-known/' --exclude='cgi-bin/' --exclude='QuantumAikido/')
+            ;;
+        quantum)
+            # Include QuantumAikido/, exclude other server-only
+            excl+=(--exclude='.well-known/' --exclude='cgi-bin/' --exclude='Interviews/')
             ;;
         all)
             # Include everything server-side (only protect .well-known and cgi-bin)
@@ -270,9 +327,9 @@ fetch_logs() {
     echo "Fetching latest log files..."
     mkdir -p "$LOGS_DIR"
 
-    # Logs always live on the prod host regardless of which machine we're on
-    local LOG_HOST="$PROD_HOST"
-    local LOG_USER="$PROD_USER"
+    # Logs always live on peec.biz regardless of which machine we're on
+    local LOG_HOST="peec.biz"
+    local LOG_USER="peecbiz"
 
     # Download current access log (overwrites - it's the live log)
     scp "${SCP_KEY_ARGS[@]}" "${LOG_USER}@${LOG_HOST}:~/${ACCESS_LOG_PATH}" "${LOGS_DIR}current-ssl.log" 2>/dev/null
@@ -280,7 +337,7 @@ fetch_logs() {
     # Download archived logs for current month (only if newer)
     MONTH=$(date +"%b-%Y")
 	  for MONTH in $(date +"%b-%Y") $(date -d "1 month ago" +"%b-%Y"); do
-		  scp "${SCP_KEY_ARGS[@]}" "${LOG_USER}@${LOG_HOST}:~/logs/neurowellnessdojo.com.peec.biz-ssl_log-${MONTH}.gz" "${LOGS_DIR}archive-ssl-${MONTH}.gz" 2>/dev/null
+		  scp "${SCP_KEY_ARGS[@]}" "${LOG_USER}@${LOG_HOST}:~/logs/${SITE_NAME}.peec.biz-ssl_log-${MONTH}.gz" "${LOGS_DIR}archive-ssl-${MONTH}.gz" 2>/dev/null
 		  if [ -f "${LOGS_DIR}archive-ssl-${MONTH}.gz" ]; then
 			  gunzip -f "${LOGS_DIR}archive-ssl-${MONTH}.gz" 2>/dev/null
 		  fi
@@ -310,7 +367,7 @@ generate_report() {
 
     echo ""
     echo "========================================"
-    echo "  NEUROWELLNESSDOJO.COM VISITOR STATISTICS"
+    echo "  ${SITE_NAME^^} VISITOR STATISTICS"
     echo "  Generated: $(date)"
     echo "========================================"
     echo ""
@@ -332,7 +389,7 @@ generate_report() {
     echo ""
     echo "TOP REFERRERS"
     echo "----------------------------------------"
-    echo "$FILTERED_LOG" | awk -F'"' '{print $4}' | grep -v '^-$' | grep -vi 'neurowellness' | sort | uniq -c | sort -rn | head -10
+    echo "$FILTERED_LOG" | awk -F'"' '{print $4}' | grep -v '^-$' | grep -vi 'quantumaikido' | sort | uniq -c | sort -rn | head -10
     echo ""
     echo "HTTP STATUS CODES"
     echo "----------------------------------------"
@@ -613,12 +670,12 @@ case "$CMD" in
         ;;
     media)
         # Sync ClipQuotes and Berkeley video folders directly to peec.biz:/public_html/
-        # These are large media dirs managed outside of git — never go through neurowellnessdojo.com/
-        MEDIA_USER="$PROD_USER"
-        MEDIA_HOST="$PROD_HOST"
+        # These are large media dirs managed outside of git — never go through quantumaikido.com/
+        MEDIA_USER="peecbiz"
+        MEDIA_HOST="peec.biz"
         MEDIA_BASE="public_html/"
         # Derive the parent of the repo in the correct rsync path format
-        MEDIA_RSYNC_BASE="${RSYNC_LOCAL%neurowellnessdojo.com/}"
+        MEDIA_RSYNC_BASE="${RSYNC_LOCAL%quantumaikido.com/}"
 
         # ClipQuotes: default to sibling dir ../ClipQuotes, override via .env CLIPQUOTES_LOCAL
         _menv="${LOCAL_PATH}.env"
@@ -673,7 +730,7 @@ case "$CMD" in
     hash)
         _env="${LOCAL_PATH}.env"
         SECRET_PREFIX=$(grep "^SECRET_PREFIX=" "$_env" 2>/dev/null | cut -d= -f2-)
-        SECRET_PREFIX="${SECRET_PREFIX:-neurowellnessdojo-}"
+        SECRET_PREFIX="${SECRET_PREFIX:-quantum-aikido-videos-}"
         HASH_LENGTH=$(grep "^HASH_LENGTH=" "$_env" 2>/dev/null | cut -d= -f2-)
         HASH_LENGTH="${HASH_LENGTH:-12}"
         unset _env
@@ -735,7 +792,8 @@ case "$CMD" in
         echo "Upload scopes (for deploy/upload/dryrun):"
         echo "  (none)             - Site files only — git-tracked HTML/CSS/JS/PHP (default)"
         echo "  interviews         - Also sync Interviews/ dir"
-        echo "  all                - Sync everything including server-managed dirs"
+        echo "  quantum            - Also sync QuantumAikido/ dir"
+        echo "  all                - Sync everything (interviews + quantum)"
         echo ""
         echo "File management:"
         echo "  Only web-facing files (HTML/CSS/JS/PHP/images) are uploaded by default."
@@ -744,8 +802,15 @@ case "$CMD" in
         echo "  Override media paths via CLIPQUOTES_LOCAL / BERKELEY_LOCAL in .env"
         echo ""
         echo "Options:"
-        echo "  --video     - Include instagram/ and thumbnails/ folders (excluded by default)"
-        echo "  -p PATH     - Override remote path (e.g. -p ~/public_html/)"
+        echo "  --remote HOST  - Specify remote server hostname (skips interactive prompt)"
+        echo "  --video        - Include instagram/ and thumbnails/ folders (excluded by default)"
+        echo "  -p PATH        - Override remote path (e.g. -p ~/public_html/)"
+        echo ""
+        echo "Known remotes (selectable by number when no --remote is given):"
+        for i in "${!KNOWN_REMOTES[@]}"; do
+            IFS='|' read -r rh ru rp rd <<< "${KNOWN_REMOTES[$i]}"
+            printf "  %d) %-38s [%s@%s:%s]\n" "$((i+1))" "$rd" "$ru" "$rh" "$rp"
+        done
         ;;
     *)
         echo "Unknown command: $CMD"

@@ -80,7 +80,7 @@ To stop the test and lock to one variant: set `nwd_variant` cookie manually in y
 - **Rate limiting** is session-based: one submission per 60 seconds per session. Stops drive-by spam but doesn't stop a determined attacker.
 - **Honeypot field** in the form catches dumb bots. Real users never see it; bots filling every field will trip it and get a silent fake-success redirect.
 - **CSRF token** stored in session, regenerated per form load, burned on submit.
-- **`noindex,nofollow`** is set in the page head — this is a private referral page, not for search engines.
+- **`index,follow`** is set in the page head — the page is currently indexable. Change to `noindex,nofollow` in `includes/head.php` if you want to keep it off search engines.
 - **No external JS** loads. The only third-party request is the Lora webfont from Google. To run fully zero-third-party, self-host the font and edit `includes/head.php`.
 
 ## Privacy policy
