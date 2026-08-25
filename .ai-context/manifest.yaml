@@ -1,0 +1,165 @@
+repository_revision: d77a3992d9921038a71d8e69b73ac6dde43d7a1c
+analysis_timestamp: "2026-08-22"
+analyzer_version: "context-compiler-v2"
+pass_plan:
+  session_scope: full
+  stages_executed: [0, 1, 2, 3, 4, 5, 6, 7, 8]
+  stages_deferred: []
+  components_in_scope:
+    - index.php
+    - contact.php
+    - submit.php
+    - KC-dds-ref/index.php
+    - privacy.php
+    - thank-you.php
+    - 404.php
+    - includes/head.php
+    - includes/variant.php
+    - includes/mail.php
+    - includes/footer.php
+    - config.php
+    - config.example.php
+    - .htaccess
+    - apps-script.gs
+    - sync.sh
+    - assets/css/styles.css
+    - tests/test_pages.py
+    - sitemap.xml
+    - robots.txt
+  components_deferred: []
+coverage:
+  analyzed_domains:
+    - frontend-pages
+    - form-handling
+    - ab-testing
+    - email-notification
+    - sheets-integration
+    - deployment
+    - testing
+    - security-controls
+    - seo
+  excluded_paths:
+    - .git/
+    - .devin/skills/
+    - .claude/
+    - .pytest_cache/
+    - logs/
+    - KC-dds-ref/NeuroWellnessReferral.pdf
+commands_run:
+  - "git log --oneline -5"
+  - "git rev-parse HEAD"
+  - "find . -type f -not -path './.git/*'"
+  - "wc -l *.php includes/*.php tests/*.py assets/css/*.css *.sh *.xml *.txt *.ini *.gs"
+  - "php -S localhost:8765 -t ."
+  - "python3 -m pytest tests/ -v"
+commands_not_run:
+  - "./sync.sh deploy --remote peec.biz (production deploy — not safe to run)"
+  - "./sync.sh upload --remote peec.biz (production upload — not safe to run)"
+limitations:
+  - ".htaccess rules not testable via php -S (Apache-only; noted in test docstring)"
+  - "PHP mail() requires sendmail; not available in test environment (warnings suppressed)"
+  - "Google Sheets webhook integration not testable without deployed Apps Script"
+  - "sync.sh contains legacy quantumaikido.com code paths not used by this site"
+artifacts:
+  - path: .ai-context/index.md
+    source_paths: [index.php, CLAUDE.md, AGENTS.md]
+    last_verified_revision: d77a399
+  - path: .ai-context/quickstart.md
+    source_paths: [CLAUDE.md, pytest.ini, sync.sh]
+    last_verified_revision: d77a399
+  - path: .ai-context/manifest.yaml
+    source_paths: [git log, file inventory]
+    last_verified_revision: d77a399
+  - path: .ai-context/architecture/index.md
+    source_paths: [index.php, submit.php, contact.php, includes/]
+    last_verified_revision: d77a399
+  - path: .ai-context/architecture/system-overview.md
+    source_paths: [index.php, submit.php, includes/, apps-script.gs, .htaccess]
+    last_verified_revision: d77a399
+  - path: .ai-context/architecture/frontend.md
+    source_paths: [index.php, contact.php, privacy.php, thank-you.php, 404.php, KC-dds-ref/index.php]
+    last_verified_revision: d77a399
+  - path: .ai-context/architecture/infrastructure.md
+    source_paths: [.htaccess, sync.sh, config.example.php, robots.txt, sitemap.xml]
+    last_verified_revision: d77a399
+  - path: .ai-context/components/index.md
+    source_paths: [all PHP files]
+    last_verified_revision: d77a399
+  - path: .ai-context/components/submit-handler.md
+    source_paths: [submit.php]
+    last_verified_revision: d77a399
+  - path: .ai-context/components/ab-variant.md
+    source_paths: [includes/variant.php]
+    last_verified_revision: d77a399
+  - path: .ai-context/components/mail.md
+    source_paths: [includes/mail.php]
+    last_verified_revision: d77a399
+  - path: .ai-context/components/page-renderer.md
+    source_paths: [index.php, contact.php, includes/head.php, includes/footer.php]
+    last_verified_revision: d77a399
+  - path: .ai-context/components/sheets-webhook.md
+    source_paths: [apps-script.gs, submit.php]
+    last_verified_revision: d77a399
+  - path: .ai-context/components/deploy-script.md
+    source_paths: [sync.sh]
+    last_verified_revision: d77a399
+  - path: .ai-context/workflows/index.md
+    source_paths: [all workflows]
+    last_verified_revision: d77a399
+  - path: .ai-context/workflows/intake-submission.md
+    source_paths: [index.php, submit.php, includes/mail.php, apps-script.gs]
+    last_verified_revision: d77a399
+  - path: .ai-context/workflows/page-render.md
+    source_paths: [index.php, includes/head.php, includes/variant.php, includes/footer.php]
+    last_verified_revision: d77a399
+  - path: .ai-context/workflows/ab-variant-assignment.md
+    source_paths: [includes/variant.php]
+    last_verified_revision: d77a399
+  - path: .ai-context/workflows/deploy.md
+    source_paths: [sync.sh]
+    last_verified_revision: d77a399
+  - path: .ai-context/change-impact/index.md
+    source_paths: [all]
+    last_verified_revision: d77a399
+  - path: .ai-context/change-impact/relationships.yaml
+    source_paths: [all PHP files, config, .htaccess]
+    last_verified_revision: d77a399
+  - path: .ai-context/conventions/index.md
+    source_paths: [all PHP files]
+    last_verified_revision: d77a399
+  - path: .ai-context/conventions/coding-patterns.md
+    source_paths: [all PHP files]
+    last_verified_revision: d77a399
+  - path: .ai-context/conventions/security.md
+    source_paths: [submit.php, .htaccess, includes/head.php]
+    last_verified_revision: d77a399
+  - path: .ai-context/conventions/configuration.md
+    source_paths: [config.example.php, config.php, .gitignore]
+    last_verified_revision: d77a399
+  - path: .ai-context/testing/index.md
+    source_paths: [tests/test_pages.py, pytest.ini]
+    last_verified_revision: d77a399
+  - path: .ai-context/testing/test-map.yaml
+    source_paths: [pytest.ini, tests/test_pages.py]
+    last_verified_revision: d77a399
+  - path: .ai-context/decisions/architecture-decisions.md
+    source_paths: [CLAUDE.md, README.md, git log]
+    last_verified_revision: d77a399
+  - path: .ai-context/decisions/conflicts.yaml
+    source_paths: [README.md, privacy.php, sync.sh]
+    last_verified_revision: d77a399
+  - path: .ai-context/debt/register.yaml
+    source_paths: [sync.sh, submit.php, config.php, README.md]
+    last_verified_revision: d77a399
+  - path: .ai-context/unknowns/register.yaml
+    source_paths: [config.php, apps-script.gs, sync.sh]
+    last_verified_revision: d77a399
+  - path: .ai-context/deltas/latest.yaml
+    source_paths: [git log]
+    last_verified_revision: d77a399
+unresolved_unknowns:
+  - UNKNOWN-001: config.php production values (intake_email, sheets_webhook_url) — gitignored
+  - UNKNOWN-002: Google Apps Script deployment status — external to repo
+  - UNKNOWN-003: sync.sh legacy code paths — inherited from quantumaikido.com
+  - UNKNOWN-004: SSL/HTTPS status on peec.biz — .htaccess redirect is active
+prior_analyzed_revision: null

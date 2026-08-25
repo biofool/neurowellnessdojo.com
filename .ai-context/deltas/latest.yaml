@@ -1,0 +1,86 @@
+# Context Delta — latest.yaml
+#
+# Initial compilation: all artifacts added. No prior analysis revision.
+# Repository revision: d77a3992d9921038a71d8e69b73ac6dde43d7a1c
+
+from_revision: null
+to_revision: d77a3992d9921038a71d8e69b73ac6dde43d7a1c
+analysis_timestamp: "2026-08-22"
+analyzer_version: "context-compiler-v2"
+pass_type: initial
+
+added:
+  - .ai-context/index.md
+  - .ai-context/quickstart.md
+  - .ai-context/manifest.yaml
+  - .ai-context/architecture/index.md
+  - .ai-context/architecture/system-overview.md
+  - .ai-context/architecture/frontend.md
+  - .ai-context/architecture/infrastructure.md
+  - .ai-context/components/index.md
+  - .ai-context/components/submit-handler.md
+  - .ai-context/components/ab-variant.md
+  - .ai-context/components/mail.md
+  - .ai-context/components/page-renderer.md
+  - .ai-context/components/sheets-webhook.md
+  - .ai-context/components/deploy-script.md
+  - .ai-context/workflows/index.md
+  - .ai-context/workflows/intake-submission.md
+  - .ai-context/workflows/page-render.md
+  - .ai-context/workflows/ab-variant-assignment.md
+  - .ai-context/workflows/deploy.md
+  - .ai-context/change-impact/index.md
+  - .ai-context/change-impact/relationships.yaml
+  - .ai-context/conventions/index.md
+  - .ai-context/conventions/coding-patterns.md
+  - .ai-context/conventions/security.md
+  - .ai-context/conventions/configuration.md
+  - .ai-context/testing/index.md
+  - .ai-context/testing/test-map.yaml
+  - .ai-context/decisions/architecture-decisions.md
+  - .ai-context/decisions/conflicts.yaml
+  - .ai-context/debt/register.yaml
+  - .ai-context/unknowns/register.yaml
+  - .ai-context/deltas/latest.yaml
+
+changed: []
+
+invalidated: []
+
+conflicts:
+  - CONFLICT-001  # HTTPS redirect: CLAUDE.md says commented out, .htaccess is active
+  - CONFLICT-002  # CSS cache: CLAUDE.md says 7 days, .htaccess sets 10 min
+  - CONFLICT-003  # Sheets schema: apps-script.gs drops referral field sent by submit.php
+
+reverified: []
+
+unknowns_added:
+  - UNKNOWN-001  # config.php production values (gitignored)
+  - UNKNOWN-002  # Google Apps Script deployment status (external)
+  - UNKNOWN-003  # sync.sh legacy code paths (inherited, usage unclear)
+  - UNKNOWN-004  # SSL/HTTPS status on peec.biz
+  - UNKNOWN-005  # PHP version on peec.biz production
+  - UNKNOWN-006  # mail()/sendmail works on peec.biz
+  - UNKNOWN-007  # sheets_webhook_url uses HTTPS in production?
+  - UNKNOWN-008  # .htaccess deny rules enforced on peec.biz (AllowOverride)?
+
+unknowns_resolved: []
+
+debt_added:
+  - DEBT-001   # @ suppression on mail() — silent failures
+  - DEBT-002   # @ suppression on Sheets webhook — silent failures
+  - DEBT-003   # session-based rate limit (bypassable)
+  - DEBT-004   # sync.sh 820 lines, ~600 legacy
+  - DEBT-005   # hardcoded plaintext code gate
+  - DEBT-006   # per-session CSRF (not per-request)
+  - DEBT-007   # no security headers (CSP, HSTS, X-Frame-Options)
+  - DEBT-008   # footer.php hardcodes email (not config-driven)
+  - DEBT-009   # apps-script.gs drops referral field
+  - DEBT-010   # nwd_notify_visit emails PII (IP, UA) — not in privacy policy
+  - DEBT-011   # no length validation on access_code
+  - DEBT-012   # honeypot absent from contact.php
+  - DEBT-013   # sync.sh deploy: no error checking between git push and rsync
+  - DEBT-014   # no tests for .htaccess or sync.sh
+  - DEBT-015   # $sent (mail return value) captured but never checked
+
+debt_resolved: []

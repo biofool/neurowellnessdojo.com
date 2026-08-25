@@ -1,0 +1,93 @@
+# Conflicts Register — neurowellnessdojo.com
+#
+# Contradictions between declared claims (docs/comments) and observed
+# behavior (source code). Resolution is UNKNOWN until verified.
+# Evidence types: OBSERVED (code) vs DECLARED (docs/comments).
+
+- id: CONFLICT-001
+  summary: >
+    HTTPS redirect status: CLAUDE.md says the .htaccess HTTPS redirect is
+    "commented out; uncomment after SSL install," but the .htaccess file
+    contains an active (uncommented) RewriteRule that forces HTTPS.
+  declared_claim:
+    statement: >
+      "Enables HTTPS redirect (commented out; uncomment after SSL install)"
+    source: CLAUDE.md:69
+    evidence_type: DECLARED
+  observed_behavior:
+    statement: >
+      RewriteEngine On + RewriteCond %{HTTPS} !=on + RewriteRule to
+      https://%{HTTP_HOST}%{REQUEST_URI} — all three lines are active,
+      not commented.
+    source: .htaccess:13-15
+    evidence_type: OBSERVED
+  resolution: UNKNOWN
+  resolution_evidence: >
+    Cannot determine from repo whether SSL is installed on peec.biz.
+    If SSL is installed, the redirect is correct and CLAUDE.md is stale.
+    If SSL is not installed, the active redirect may cause a redirect
+    loop or broken HTTPS in production. See UNKNOWN-004.
+  impact_if_agent_trusts_wrong_side: >
+    If agent trusts CLAUDE.md (thinks redirect is off) and SSL is not
+    installed, the active redirect could break the site. If agent trusts
+    .htaccess (thinks redirect is on) and SSL is installed, no harm —
+    but the agent may fail to update CLAUDE.md. Either way, CLAUDE.md
+    is stale and should be corrected to match .htaccess.
+
+- id: CONFLICT-002
+  summary: >
+    CSS cache duration: CLAUDE.md says CSS is cached "for 7 days," but
+    .htaccess sets max-age=600 (10 minutes), not 604800 (7 days).
+  declared_claim:
+    statement: "Caches CSS assets for 7 days"
+    source: CLAUDE.md:71
+    evidence_type: DECLARED
+  observed_behavior:
+    statement: >
+      Header set Cache-Control "max-age=600, public" — 600 seconds =
+      10 minutes, not 7 days (604800 seconds).
+    source: .htaccess:30
+    evidence_type: OBSERVED
+  resolution: OBSERVED_WINS
+  resolution_evidence: >
+    The .htaccess directive is the actual runtime behavior. CLAUDE.md
+    is stale — the value was likely changed from 7 days to 10 minutes
+    at some point without updating the doc.
+  impact_if_agent_trusts_wrong_side: >
+    If agent trusts CLAUDE.md and tells the operator CSS is cached for
+    7 days, the operator may not realize CSS changes take up to 10 min
+    to propagate (not instant, not 7 days). Low impact but misleading.
+
+- id: CONFLICT-003
+  summary: >
+    Google Sheets schema mismatch: apps-script.gs and CLAUDE.md document
+    5 Sheet columns (timestamp, name, email, message, variant), but
+    submit.php sends 6 fields including referral. The referral field is
+    silently dropped — apps-script.gs appendRow does not include it.
+  declared_claim:
+    statement: >
+      "appends a row: timestamp | name | email | message | variant"
+      (5 columns, no referral)
+    source: apps-script.gs:4, CLAUDE.md:57
+    evidence_type: DECLARED
+  observed_behavior:
+    statement: >
+      submit.php:78-85 json_encodes a payload with 6 keys: name, email,
+      message, variant, referral, timestamp. apps-script.gs:17-23
+      appendRow writes only 5 values (data.timestamp, data.name,
+      data.email, data.message, data.variant) — data.referral is
+      ignored.
+    source: submit.php:83, apps-script.gs:17-23
+    evidence_type: OBSERVED
+  resolution: UNKNOWN
+  resolution_evidence: >
+    The Apps Script is deployed separately and may have been updated
+    outside the repo. The repo copy (apps-script.gs) does not capture
+    referral. If the deployed script matches the repo, referral data is
+    lost. See UNKNOWN-002.
+  impact_if_agent_trusts_wrong_side: >
+    If agent trusts the docs (5 columns) and adds a new field to
+    submit.php, the agent may not realize it also needs to update
+    apps-script.gs. Conversely, if the deployed script already has 6
+    columns, the repo copy is stale. Either way, the repo and deployed
+    script may be out of sync. See DEBT-009.

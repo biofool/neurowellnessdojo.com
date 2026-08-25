@@ -1,0 +1,352 @@
+# Change-Impact Relationships
+
+submit_handler:
+  component:
+    name: Form Submission Handler
+    path: submit.php
+  depends_on:
+    - type: code
+      target: config.php
+      evidence: "submit.php:4 require"
+    - type: code
+      target: includes/variant.php
+      evidence: "submit.php:5 require"
+    - type: code
+      target: includes/mail.php
+      evidence: "submit.php:6 require"
+    - type: runtime
+      target: PHP mail() / sendmail
+      evidence: "submit.php:73 nwd_send_mail()"
+    - type: external
+      target: Google Sheets webhook (optional)
+      evidence: "submit.php:77-95 file_get_contents POST"
+    - type: runtime
+      target: $_SESSION (CSRF, rate limit)
+      evidence: "submit.php:8,18,30,98,101"
+  used_by:
+    - target: index.php (unlocked form)
+      evidence: "index.php:146 form action=/submit.php"
+    - target: contact.php
+      evidence: "contact.php:36 form action=/submit.php"
+    - target: KC-dds-ref/index.php
+      evidence: "KC-dds-ref/index.php:66 form action=/submit.php"
+  interfaces:
+    - "HTTP POST /submit.php with csrf, name, email, message, variant, referral, website(honeypot)"
+  data_stores:
+    - $_SESSION (CSRF token, last_submit timestamp)
+    - Email inbox (via mail())
+    - Google Sheet (via Apps Script webhook)
+  configuration:
+    - config.php: intake_email, mail_from, mail_from_name, sheets_webhook_url
+  runtime_workflows:
+    - intake-submission
+  decisions: []
+  known_risks:
+    - "mail() return value not checked (DEBT-002)"
+    - "Sheets webhook @-suppressed, failures silent (DEBT-002)"
+    - "Rate limit is session-based, not IP-based (DEBT-003)"
+  security_sensitive: true
+  operationally_sensitive: true
+  before_modifying:
+    - "Review all security controls (CSRF, honeypot, rate-limit, validation)"
+    - "Check that all three forms still POST the expected fields"
+    - "Update apps-script.gs if payload fields change"
+    - "Run: pytest tests/ (4 submit-specific tests)"
+  test_map_target: submit.php
+  evidence:
+    - "submit.php:1-104"
+
+ab_variant:
+  component:
+    name: A/B Variant Assignment
+    path: includes/variant.php
+  depends_on:
+    - type: config
+      target: config.php (variant_cookie, variant_cookie_ttl)
+      evidence: "variant.php:7,19"
+    - type: runtime
+      target: $_COOKIE
+      evidence: "variant.php:9"
+    - type: runtime
+      target: mt_rand()
+      evidence: "variant.php:13"
+  used_by:
+    - target: index.php
+      evidence: "index.php:31-32 nwd_variant(), nwd_terms()"
+    - target: contact.php
+      evidence: "contact.php:17-18 nwd_variant(), nwd_terms()"
+    - target: KC-dds-ref/index.php
+      evidence: "KC-dds-ref/index.php:22-23 nwd_variant(), nwd_terms()"
+    - target: submit.php
+      evidence: "submit.php:5 require (functions not called, variant via POST)"
+  interfaces:
+    - "nwd_variant(array $config): string — returns 'A' or 'B'"
+    - "nwd_terms(string $variant): array — returns word swap keys"
+  data_stores:
+    - Cookie: nwd_variant (1 year TTL)
+  configuration:
+    - config.php: variant_cookie, variant_cookie_ttl
+  runtime_workflows:
+    - ab-variant-assignment
+    - page-render
+  decisions: []
+  known_risks:
+    - "mt_rand not cryptographically secure (acceptable for A/B)"
+    - "No direct unit tests for variant logic"
+  security_sensitive: false
+  operationally_sensitive: false
+  before_modifying:
+    - "Changing word swaps affects all pages using $t['...']"
+    - "Adding a variant requires updating in_array checks in variant.php and submit.php"
+    - "Run: pytest tests/ (page render tests cover variant indirectly)"
+  test_map_target: includes/variant.php
+  evidence:
+    - "includes/variant.php:1-48"
+
+mail:
+  component:
+    name: Mail Functions
+    path: includes/mail.php
+  depends_on:
+    - type: config
+      target: config.php (mail_from, mail_from_name, intake_email)
+      evidence: "mail.php:11,47"
+    - type: runtime
+      target: PHP mail() / sendmail
+      evidence: "mail.php:17"
+    - type: runtime
+      target: $_SESSION, $_SERVER
+      evidence: "mail.php:26-37"
+  used_by:
+    - target: index.php
+      evidence: "index.php:6 require, index.php:30 nwd_notify_visit()"
+    - target: contact.php
+      evidence: "contact.php:6 require, contact.php:7 nwd_notify_visit()"
+    - target: KC-dds-ref/index.php
+      evidence: "KC-dds-ref/index.php:5 require, KC-dds-ref/index.php:21 nwd_notify_visit()"
+    - target: submit.php
+      evidence: "submit.php:6 require, submit.php:73 nwd_send_mail()"
+  interfaces:
+    - "nwd_send_mail(array $config, string $to, string $subject, string $body, array $extraHeaders = []): bool"
+    - "nwd_notify_visit(array $config, string $page): void"
+  data_stores:
+    - $_SESSION (notified_<page> flag)
+    - Email (via mail())
+  configuration:
+    - config.php: mail_from, mail_from_name, intake_email
+  runtime_workflows:
+    - intake-submission
+    - page-render
+  decisions: []
+  known_risks:
+    - "nwd_notify_visit uses @ suppression — mail failures silent (DEBT-001)"
+    - "Visit notification includes IP and user-agent — PII in email"
+  security_sensitive: true
+  operationally_sensitive: true
+  before_modifying:
+    - "Changing headers affects email deliverability"
+    - "nwd_notify_visit sends PII (IP, UA) via email"
+    - "Run: pytest tests/ (page render tests exercise nwd_notify_visit)"
+  test_map_target: includes/mail.php
+  evidence:
+    - "includes/mail.php:1-49"
+
+page_renderer:
+  component:
+    name: Page Renderer
+    path: "index.php, contact.php, privacy.php, thank-you.php, 404.php, KC-dds-ref/index.php"
+  depends_on:
+    - type: code
+      target: includes/head.php
+      evidence: "all pages include head.php"
+    - type: code
+      target: includes/footer.php
+      evidence: "all pages include footer.php"
+    - type: code
+      target: includes/variant.php
+      evidence: "index.php, contact.php, KC-dds-ref/index.php"
+    - type: code
+      target: includes/mail.php
+      evidence: "index.php, contact.php, KC-dds-ref/index.php"
+    - type: config
+      target: config.php
+      evidence: "index.php:5, contact.php:5, KC-dds-ref/index.php:4"
+    - type: static
+      target: assets/css/styles.css
+      evidence: "head.php:20 link"
+  used_by:
+    - target: Site visitors (HTTP GET)
+  interfaces:
+    - "HTTP GET / → index.php"
+    - "HTTP GET /contact.php → contact.php"
+    - "HTTP GET /privacy.php → privacy.php"
+    - "HTTP GET /thank-you.php → thank-you.php"
+    - "HTTP GET /404.php → 404.php"
+    - "HTTP GET /KC-dds-ref/ → KC-dds-ref/index.php"
+  data_stores:
+    - $_SESSION (CSRF, clemans_unlocked, notified_<page>)
+  configuration:
+    - config.php: maintenance, intake_email
+  runtime_workflows:
+    - page-render
+  decisions: []
+  known_risks:
+    - "footer.php hardcodes coach@neurowellnessdojo.com (line 9)"
+    - "Code gate uses simple string comparison, not hashed (DEBT-005)"
+  security_sensitive: false
+  operationally_sensitive: false
+  before_modifying:
+    - "head.php changes affect all pages (session, CSRF, nav, <head>)"
+    - "Adding nav items requires updating head.php nav list"
+    - "Run: pytest tests/ (10 page render tests)"
+  test_map_target: "index.php, contact.php, privacy.php, thank-you.php, 404.php, KC-dds-ref/index.php"
+  evidence:
+    - "index.php:1-198"
+    - "contact.php:1-70"
+    - "includes/head.php:1-38"
+    - "includes/footer.php:1-17"
+
+head_include:
+  component:
+    name: HTML Head Include
+    path: includes/head.php
+  depends_on:
+    - type: runtime
+      target: $_SESSION
+      evidence: "head.php:7-12 session_start, CSRF"
+    - type: static
+      target: assets/css/styles.css
+      evidence: "head.php:20 stylesheet link"
+  used_by:
+    - target: index.php
+    - target: contact.php
+    - target: privacy.php
+    - target: thank-you.php
+    - target: 404.php
+    - target: KC-dds-ref/index.php
+  interfaces:
+    - "Expects: $page_title (string), $current_page (string), $meta_robots (optional string)"
+    - "Provides: session_start, $_SESSION['csrf'], HTML <head>, header nav"
+  data_stores:
+    - $_SESSION (csrf token)
+  configuration: []
+  runtime_workflows:
+    - page-render
+  decisions: []
+  known_risks:
+    - "CSRF token generated per session, not per request (DEBT-006)"
+  security_sensitive: true
+  operationally_sensitive: false
+  before_modifying:
+    - "Changes affect ALL pages — test all page render tests"
+    - "Nav structure is hardcoded in this file"
+    - "Run: pytest tests/"
+  test_map_target: includes/head.php
+  evidence:
+    - "includes/head.php:1-38"
+
+config:
+  component:
+    name: Site Configuration
+    path: config.php
+  depends_on: []
+  used_by:
+    - target: index.php
+    - target: contact.php
+    - target: submit.php
+    - target: KC-dds-ref/index.php
+    - target: includes/mail.php
+    - target: includes/variant.php
+  interfaces:
+    - "Returns PHP array with keys: intake_email, mail_from, mail_from_name, sheets_webhook_url, site_url, variant_cookie, variant_cookie_ttl, maintenance"
+  data_stores: []
+  configuration:
+    - "Self: config.php is the configuration"
+  runtime_workflows:
+    - page-render
+    - intake-submission
+  decisions: []
+  known_risks:
+    - "config.php is gitignored — production values are UNKNOWN"
+    - "config.example.php and config.php differ (mail_from, mail_from_name)"
+  security_sensitive: true
+  operationally_sensitive: true
+  before_modifying:
+    - "config.php is never committed — changes must be deployed via rsync"
+    - "config.example.php is the template — keep in sync with config.php keys"
+    - ".htaccess denies direct access to config.php"
+  test_map_target: config.php
+  evidence:
+    - "config.example.php:1-29"
+    - "config.php:1-29"
+
+htaccess:
+  component:
+    name: Apache Configuration
+    path: .htaccess
+  depends_on:
+    - type: runtime
+      target: Apache mod_rewrite
+      evidence: ".htaccess:13 RewriteEngine"
+  used_by:
+    - target: Apache web server (peec.biz)
+  interfaces:
+    - "Apache .htaccess directives"
+  data_stores: []
+  configuration: []
+  runtime_workflows: []
+  decisions: []
+  known_risks:
+    - "Not enforced by php -S (test environment) — noted in test docstring"
+    - "HTTPS redirect is active but CLAUDE.md says it's commented out (CONFLICT-001)"
+  security_sensitive: true
+  operationally_sensitive: true
+  before_modifying:
+    - "Changes only take effect on Apache (peec.biz), not in test environment"
+    - "Deny rules protect config.php and includes/ — don't remove"
+    - "No automated tests cover .htaccess"
+  test_map_target: .htaccess
+  evidence:
+    - ".htaccess:1-31"
+
+deploy_script:
+  component:
+    name: Deployment Script
+    path: sync.sh
+  depends_on:
+    - type: runtime
+      target: rsync
+      evidence: "sync.sh:21"
+    - type: runtime
+      target: ssh
+      evidence: "sync.sh:24"
+    - type: runtime
+      target: git
+      evidence: "sync.sh:754"
+    - type: file
+      target: ~/.ssh/quantumaikido_ed25519
+      evidence: "sync.sh:8"
+  used_by:
+    - target: Developer (manual execution)
+  interfaces:
+    - "./sync.sh <command> [--remote <host>] [--video] [-y] [-p <path>]"
+  data_stores: []
+  configuration:
+    - "KNOWN_REMOTES array (sync.sh:11-14)"
+    - ".env (optional, for legacy video archive features)"
+  runtime_workflows:
+    - deploy
+  decisions: []
+  known_risks:
+    - "820 lines, ~600 legacy from quantumaikido.com (DEBT-004)"
+    - "deploy command has no error checking between git push and rsync"
+    - "Windows/Cygwin path support may be stale"
+  security_sensitive: true
+  operationally_sensitive: true
+  before_modifying:
+    - "Changes affect production deployment"
+    - "Legacy code paths (cache, review, media, uploads) not used by this site"
+    - "No tests for sync.sh"
+  test_map_target: sync.sh
+  evidence:
+    - "sync.sh:1-820"

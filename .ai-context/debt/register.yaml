@@ -1,0 +1,314 @@
+# Technical Debt Register — neurowellnessdojo.com
+#
+# Priority score = impact (1-5) × likelihood (1-5) × reach (1-5).
+# Classification: confirmed-defect / architectural-risk / code-smell /
+#                 improvement-opportunity / evidence-gap.
+# All claims are OBSERVED unless tagged INFERRED/DECLARED/UNKNOWN.
+# Sorted by priority score (highest first).
+
+- id: DEBT-001
+  classification: confirmed-defect
+  summary: >
+    @ error suppression on mail() in nwd_notify_visit (mail.php:47) and
+    nwd_send_mail call in submit.php:73. Mail send failures are completely
+    silent — no log, no fallback, no user feedback. Violates AGENTS.md
+    "never fail silently" rule.
+  location:
+    - includes/mail.php:47  # @nwd_send_mail(...)
+    - submit.php:73         # $sent = @nwd_send_mail(...)
+  evidence_type: OBSERVED
+  impact: 5   # intake submissions lost with zero signal
+  likelihood: 3
+  reach: 5    # every form submission + every page visit notification
+  priority_score: 75
+  verification: >
+    Remove @ suppression and trigger a mail() failure (e.g. invalid sendmail
+    path) — confirm no error is surfaced. Check PHP error log on peec.biz.
+  remediation: >
+    Remove @ operators. Log failures to error_log(). On submit.php, surface
+    a user-facing error if mail() returns false (currently $sent is unused).
+
+- id: DEBT-002
+  classification: confirmed-defect
+  summary: >
+    Google Sheets webhook call uses @file_get_contents with
+    ignore_errors: true (submit.php:95). Webhook failures are completely
+    silent — no log, no retry, no alert. The referral field sent in the
+    payload (submit.php:83) is also not captured by apps-script.gs (see
+    CONFLICT-003).
+  location:
+    - submit.php:86-95  # stream_context + @file_get_contents
+  evidence_type: OBSERVED
+  impact: 4   # Sheet tracking gaps, no signal
+  likelihood: 3
+  reach: 4    # every submission when webhook configured
+  priority_score: 48
+  verification: >
+    Point sheets_webhook_url at an invalid endpoint and submit — confirm
+    no error surfaces and no log entry appears.
+  remediation: >
+    Remove @ suppression. Log HTTP response code. Consider retry with
+    backoff or queue. Add referral column to apps-script.gs.
+
+- id: DEBT-003
+  classification: architectural-risk
+  summary: >
+    Rate limit is session-based, not IP-based (submit.php:30-33). Bypassable
+    by clearing session cookie or using multiple sessions. Stops drive-by
+    spam only, not determined attackers. README.md:80 acknowledges this.
+  location:
+    - submit.php:30-33
+  evidence_type: OBSERVED
+  impact: 3   # spam volume, not data breach
+  likelihood: 4
+  reach: 3    # submit endpoint only
+  priority_score: 36
+  verification: >
+    Clear session cookie between rapid POSTs — confirm rate limit resets.
+  remediation: >
+    Add IP-based rate limiting (e.g. fail2ban, .htaccess, or flat-file
+    timestamp) as a secondary layer.
+
+- id: DEBT-004
+  classification: code-smell
+  summary: >
+    sync.sh is 820 lines; ~600 are legacy from quantumaikido.com (video
+    archive, cache sync, review-queue, media, uploads, Cygwin paths).
+    These code paths are not used by this site but inflate the script and
+    create maintenance/confusion risk. Git commit 98a8527 partially cleaned
+    references but legacy commands (cache, media, pull-review, etc.) remain.
+  location:
+    - sync.sh:1-820  # entire file; legacy blocks at 44-147, 277-392+
+  evidence_type: OBSERVED
+  impact: 3   # wrong command run, deploy breakage
+  likelihood: 2
+  reach: 5    # entire deploy workflow
+  priority_score: 30
+  verification: >
+    grep -c 'video\|cache\|review\|media\|uploads\|quantumaikido' sync.sh
+    — 40+ matches in a script for a site with none of these features.
+  remediation: >
+    Extract the 4 commands this site uses (deploy, dryrun, upload, logs)
+    into a standalone ~100-line script. Remove legacy branches.
+
+- id: DEBT-005
+  classification: architectural-risk
+  summary: >
+    Code gate uses hardcoded plaintext string comparison ("DrClemans" at
+    index.php:22) via strcasecmp. The access code is visible in git history
+    and source. Not a real auth system (acknowledged in
+    TechnicalMarketingReadMe.md:113). No rate limit on code attempts.
+  location:
+    - index.php:21-27
+  evidence_type: OBSERVED
+  impact: 3   # content gate bypass, not data breach
+  likelihood: 3
+  reach: 3    # index.php only
+  priority_score: 27
+  verification: >
+    The string "DrClemans" appears in index.php:22 and git log (commit
+    1773db3). Anyone reading source or git knows the code.
+  remediation: >
+    If gate matters, use a config-based code (in config.php, gitignored)
+    with hash comparison and attempt rate limiting.
+
+- id: DEBT-006
+  classification: architectural-risk
+  summary: >
+    CSRF token is generated once per session (head.php:10-12) and reused
+    across multiple forms and requests in the same session. Token is burned
+    only after successful submission (submit.php:101). A multi-form session
+    shares one token, and the token persists until first successful submit.
+  location:
+    - includes/head.php:10-12
+    - submit.php:101
+  evidence_type: OBSERVED
+  impact: 3
+  likelihood: 2
+  reach: 4    # all forms
+  priority_score: 24
+  verification: >
+    Load index.php and contact.php in same session — confirm same csrf
+    token value in both forms.
+  remediation: >
+    Acceptable for low-volume landing page (INFERRED). If hardening needed,
+    switch to per-request tokens with rotation.
+
+- id: DEBT-007
+  classification: improvement-opportunity
+  summary: >
+    No Content-Security-Policy, X-Frame-Options, X-Content-Type-Options,
+    or Strict-Transport-Security headers in .htaccess. Only
+    ServerSignature Off and Options -Indexes are set.
+  location:
+    - .htaccess:24-26
+  evidence_type: OBSERVED
+  impact: 3
+  likelihood: 3
+  reach: 5    # all responses
+  priority_score: 45
+  verification: >
+    curl -I https://neurowellnessdojo.com/ — confirm absence of CSP,
+    X-Frame-Options, HSTS headers.
+  remediation: >
+    Add Header set Content-Security-Policy "default-src 'self'" and
+    related security headers to .htaccess.
+
+- id: DEBT-008
+  classification: code-smell
+  summary: >
+    footer.php:9 hardcodes coach@neurowellnessdojo.com instead of reading
+    from $config['intake_email']. If the config value changes, the footer
+    email will diverge from the actual intake address.
+  location:
+    - includes/footer.php:9
+  evidence_type: OBSERVED
+  impact: 2
+  likelihood: 3
+  reach: 5    # every page (footer on all)
+  priority_score: 30
+  verification: >
+    Compare footer.php:9 string with config.example.php:9 — currently
+    match, but no mechanism enforces this.
+  remediation: >
+    Pass $config into footer.php and use htmlspecialchars($config['intake_email']).
+
+- id: DEBT-009
+  classification: confirmed-defect
+  summary: >
+    apps-script.gs does not capture the referral field. submit.php sends
+    6 fields (name, email, message, variant, referral, timestamp) but
+    apps-script.gs appendRow only writes 5 (timestamp, name, email,
+    message, variant). Referral data is silently dropped — see
+    CONFLICT-003.
+  location:
+    - apps-script.gs:17-23  # 5 columns, no referral
+    - submit.php:83         # referral in payload
+  evidence_type: OBSERVED
+  impact: 3   # lost tracking dimension
+  likelihood: 5  # always happens when webhook is used
+  reach: 3    # KC-dds-ref submissions only (only form sending referral)
+  priority_score: 45
+  verification: >
+    Submit via KC-dds-ref form with webhook configured — confirm Sheet
+    row has no referral column.
+  remediation: >
+    Add data.referral to appendRow in apps-script.gs and add "referral"
+    header to the Sheet.
+
+- id: DEBT-010
+  classification: architectural-risk
+  summary: >
+    nwd_notify_visit emails visitor PII (IP address, User-Agent, referer)
+    to the intake address on every first page visit per session
+    (mail.php:34-45). This PII collection is not disclosed in privacy.php.
+    Potential GDPR/privacy compliance gap.
+  location:
+    - includes/mail.php:34-45
+  evidence_type: OBSERVED
+  impact: 4   # privacy compliance
+  likelihood: 4  # fires on every first visit per session per page
+  reach: 4    # index, contact, KC-dds-ref
+  priority_score: 64
+  verification: >
+    Read privacy.php — confirm no mention of IP/UA collection. Trigger
+    nwd_notify_visit and inspect email body.
+  remediation: >
+    Either disclose IP/UA collection in privacy.php, or remove PII from
+    visit notification emails. Prefer removing PII.
+
+- id: DEBT-011
+  classification: code-smell
+  summary: >
+    No input length validation or maxlength attribute on the access_code
+    POST field (index.php:94). Unlike the intake form fields (name 120,
+    email 200, message 2000), the code field has no bound.
+  location:
+    - index.php:21-27, 94
+  evidence_type: OBSERVED
+  impact: 2
+  likelihood: 2
+  reach: 2    # index.php code gate only
+  priority_score: 8
+  verification: >
+    POST a 100KB string as access_code — confirm no length rejection.
+  remediation: >
+    Add maxlength="50" to the input and mb_strlen check in the POST handler.
+
+- id: DEBT-012
+  classification: architectural-risk
+  summary: >
+    Honeypot field is absent from contact.php (removed per commit 1b20ec5).
+    Only 2 of 3 forms (index.php unlocked, KC-dds-ref) have bot protection.
+    contact.php relies solely on CSRF and rate limiting.
+  location:
+    - contact.php:36-58  # no honeypot field
+  evidence_type: OBSERVED
+  impact: 2
+  likelihood: 3
+  reach: 2    # contact.php only
+  priority_score: 12
+  verification: >
+    grep -L 'website' contact.php index.php KC-dds-ref/index.php —
+    contact.php is the only form without the honeypot.
+  remediation: >
+    Re-add honeypot to contact.php, or document the intentional decision.
+
+- id: DEBT-013
+  classification: architectural-risk
+  summary: >
+    sync.sh deploy command chains git push and rsync with no error
+    checking between steps. If git push fails, rsync may deploy stale
+    or partial state. No rollback mechanism.
+  location:
+    - sync.sh:deploy command (search "deploy)"
+  evidence_type: INFERRED
+  impact: 4   # production deploy corruption
+  likelihood: 2
+  reach: 5    # entire site
+  priority_score: 40
+  verification: >
+    Read sync.sh deploy function — confirm no `set -e` or `|| exit` between
+    git push and rsync.
+  remediation: >
+    Add `set -e` or explicit error checks. Add pre-deploy dry-run and
+    post-deploy smoke test.
+
+- id: DEBT-014
+  classification: evidence-gap
+  summary: >
+    No automated tests cover .htaccess (Apache-only rules) or sync.sh.
+    The test suite uses php -S which does not enforce .htaccess. Access
+    control (deny config.php, deny includes/) is untested.
+  location:
+    - tests/test_pages.py:8-9  # docstring acknowledges .htaccess gap
+  evidence_type: OBSERVED
+  impact: 3
+  likelihood: 3
+  reach: 4    # security config + deploy
+  priority_score: 36
+  verification: >
+    pytest tests/ — confirm no test accesses /config.php or /includes/
+    directly (would fail on Apache, pass on php -S).
+  remediation: >
+    Add integration tests against an Apache container, or add curl-based
+    tests against production for .htaccess rules.
+
+- id: DEBT-015
+  classification: code-smell
+  summary: >
+    submit.php:73 captures $sent (mail() return value) but never checks
+    it. The variable is assigned and then ignored — the user is always
+    redirected to thank-you.php regardless of whether email was sent.
+  location:
+    - submit.php:73, 98-103  # $sent assigned, never used
+  evidence_type: OBSERVED
+  impact: 4   # silent submission loss
+  likelihood: 3
+  reach: 5    # all submissions
+  priority_score: 60
+  verification: >
+    grep '$sent' submit.php — assigned at line 73, never referenced again.
+  remediation: >
+    Check $sent; if false, log error and show user a retry message instead
+    of thank-you.php.

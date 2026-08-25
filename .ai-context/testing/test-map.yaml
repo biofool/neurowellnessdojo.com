@@ -1,0 +1,74 @@
+# Test Map — neurowellnessdojo.com
+
+# Commands verified to exist in repo evidence:
+# - pytest.ini: testpaths = tests
+# - tests/test_pages.py: "Run with: pytest tests/ from the project root"
+# - tests/test_pages.py: "Requires: pip install pytest requests"
+
+all_pages:
+  integration:
+    - "pytest tests/"
+  typecheck:
+    - "php -l index.php"
+    - "php -l contact.php"
+    - "php -l submit.php"
+    - "php -l privacy.php"
+    - "php -l thank-you.php"
+    - "php -l 404.php"
+    - "php -l includes/head.php"
+    - "php -l includes/variant.php"
+    - "php -l includes/mail.php"
+    - "php -l includes/footer.php"
+    - "php -l KC-dds-ref/index.php"
+    - "php -l config.example.php"
+  lint: []
+
+submit_handler:
+  integration:
+    - "pytest tests/ -k submit"
+  typecheck:
+    - "php -l submit.php"
+  lint: []
+
+page_rendering:
+  integration:
+    - "pytest tests/ -k 'home or contact or privacy or thankyou or 404'"
+  typecheck:
+    - "php -l index.php"
+    - "php -l contact.php"
+    - "php -l privacy.php"
+    - "php -l thank-you.php"
+    - "php -l 404.php"
+  lint: []
+
+kc_dds_ref:
+  integration:
+    - "pytest tests/ -k kc_dds_ref"
+  typecheck:
+    - "php -l KC-dds-ref/index.php"
+  lint: []
+
+ab_variant:
+  integration:
+    - "pytest tests/ -k home"
+  typecheck:
+    - "php -l includes/variant.php"
+  lint: []
+
+mail:
+  integration:
+    - "pytest tests/ -k 'home or contact'"
+  typecheck:
+    - "php -l includes/mail.php"
+  lint: []
+
+deploy_script:
+  integration: []
+  typecheck:
+    - "bash -n sync.sh"
+  lint: []
+
+apps_script:
+  integration: []
+  typecheck: []
+  lint: []

@@ -1,0 +1,123 @@
+# Unknowns Register — neurowellnessdojo.com
+#
+# Evidence gaps where repository evidence is insufficient to establish
+# a claim. Each entry identifies what would verify or resolve it.
+# Classification: evidence-gap / runtime-unknown / external-unknown.
+
+- id: UNKNOWN-001
+  classification: evidence-gap
+  summary: >
+    config.php production values are UNKNOWN — the file is gitignored.
+    Keys intake_email, mail_from, mail_from_name, sheets_webhook_url
+    cannot be verified from repo evidence. config.example.php provides
+    template defaults only.
+  what_would_verify: >
+    Read config.php on the production server (peec.biz), or have the
+    operator confirm the values. Do NOT read the local gitignored
+    config.php (may contain secrets).
+  evidence_type: UNKNOWN
+  source: .gitignore, config.example.php
+  last_verified: 2026-08-22
+
+- id: UNKNOWN-002
+  classification: external-unknown
+  summary: >
+    Google Apps Script deployment status is UNKNOWN — apps-script.gs
+    exists in the repo but the actual deployed Web App URL, Sheet ID,
+    and whether the script is live cannot be determined from repo
+    evidence. The webhook URL lives in gitignored config.php.
+  what_would_verify: >
+    Check config.php sheets_webhook_url value, then curl the endpoint
+    with a test payload and confirm a Sheet row appears. Alternatively,
+    inspect the Google Sheet and Apps Script project directly.
+  evidence_type: UNKNOWN
+  source: apps-script.gs, config.example.php:18
+  last_verified: 2026-08-22
+
+- id: UNKNOWN-003
+  classification: evidence-gap
+  summary: >
+    sync.sh contains ~600 lines of legacy quantumaikido.com code paths
+    (video archive, cache sync, review-queue, media, uploads, Cygwin).
+    It is UNKNOWN whether any of these commands are still invoked for
+    this site. The manifest notes "legacy code paths not used by this
+    site" but this is INFERRED, not confirmed by the operator.
+  what_would_verify: >
+    Ask the operator which sync.sh commands they actually run. Check
+    shell history or deploy logs if available.
+  evidence_type: INFERRED
+  source: sync.sh, git log (commit 98a8527)
+  last_verified: 2026-08-22
+
+- id: UNKNOWN-004
+  classification: runtime-unknown
+  summary: >
+    SSL/HTTPS status on peec.biz is UNKNOWN. .htaccess:13-15 contains
+    an active HTTPS redirect (RewriteRule, not commented out), but
+    CLAUDE.md:69 states it is "commented out; uncomment after SSL
+    install." Whether an SSL certificate is installed and the redirect
+    is functioning in production cannot be determined from repo evidence
+    alone. See CONFLICT-001.
+  what_would_verify: >
+    curl -I http://neurowellnessdojo.com/ — confirm 301 redirect to
+    https://. Check SSL cert validity via browser or openssl s_client.
+  evidence_type: UNKNOWN
+  source: .htaccess:13-15, CLAUDE.md:69
+  last_verified: 2026-08-22
+
+- id: UNKNOWN-005
+  classification: runtime-unknown
+  summary: >
+    PHP version on peec.biz production is UNKNOWN. Local development
+    uses PHP 8.5.4; CLAUDE.md states "PHP 7.4+". The actual production
+    version determines whether strict_types, typed properties, and
+    other 8.x features are safe to use.
+  what_would_verify: >
+    phpinfo() on production, or ssh to peec.biz and run `php -v`.
+    Alternatively, add a phpversion() output to a temporary diagnostic page.
+  evidence_type: UNKNOWN
+  source: CLAUDE.md:9, local `php -v`
+  last_verified: 2026-08-22
+
+- id: UNKNOWN-006
+  classification: runtime-unknown
+  summary: >
+    Whether PHP mail() / sendmail works on peec.biz is UNKNOWN. The
+    test environment suppresses mail() warnings (no sendmail locally).
+    Production email deliverability depends on shared host sendmail
+    configuration and SPF/DKIM/DMARC records.
+  what_would_verify: >
+    Submit the intake form on production and confirm the email arrives
+    at the intake address. Check mail logs on peec.biz if accessible.
+  evidence_type: UNKNOWN
+  source: tests/test_pages.py (mail warnings suppressed), includes/mail.php
+  last_verified: 2026-08-22
+
+- id: UNKNOWN-007
+  classification: evidence-gap
+  summary: >
+    Whether the production sheets_webhook_url uses HTTPS is UNKNOWN.
+    If the URL uses HTTP, the submission payload (name, email, message,
+    referral) is sent unencrypted. submit.php:95 uses
+    file_get_contents which respects the URL scheme.
+  what_would_verify: >
+    Check the sheets_webhook_url value in production config.php.
+    Google Apps Script Web App URLs are typically https:// but this
+    must be confirmed.
+  evidence_type: UNKNOWN
+  source: submit.php:86-95, config.example.php:18
+  last_verified: 2026-08-22
+
+- id: UNKNOWN-008
+  classification: runtime-unknown
+  summary: >
+    Whether .htaccess deny rules (config.php, includes/) are actually
+    enforced on peec.biz is UNKNOWN. The rules exist in the file but
+    Apache configuration (AllowOverride) on the shared host determines
+    whether .htaccess directives are honored.
+  what_would_verify: >
+    curl https://neurowellnessdojo.com/config.php — expect 403. If 200
+    or PHP source displayed, AllowOverride is not enabled.
+  evidence_type: UNKNOWN
+  source: .htaccess:4-10, tests/test_pages.py:8-9
+  last_verified: 2026-08-22
