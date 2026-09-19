@@ -30,7 +30,6 @@ throttled visit-notification emails (one per session per page).
 |----------|----------------|
 | `index.php` | `nwd_notify_visit()` |
 | `contact.php` | `nwd_notify_visit()` |
-| `KC-dds-ref/index.php` | `nwd_notify_visit()` |
 | `submit.php` | `nwd_send_mail()` |
 
 ## Email Headers (nwd_send_mail)

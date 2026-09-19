@@ -65,6 +65,5 @@ consistent navigation, session management, CSRF tokens, and styling.
   head/footer. Add to nav in `head.php` if needed.
 - **Adding nav item:** add `<li>` to `head.php:29-33` nav list
 - **Changing meta robots:** set `$meta_robots` before including head.php
-  (see `KC-dds-ref/index.php:16`)
 - **Code gate code:** change "DrClemans" in `index.php:22`
 - **Test coverage:** 10 tests cover page rendering (200 status, content, errors)

@@ -50,15 +50,6 @@ Git commit 1773db3: "Gate Dr. Clemans referral info behind session code."
 **Rationale:** INFERRED — controls who sees full content without user accounts.
 TechnicalMarketingReadMe.md:113 acknowledges "not a real auth system."
 
-## ADR-007: Separate referral page (KC-dds-ref)
-
-**Status:** OBSERVED
-**Evidence:** `KC-dds-ref/index.php` — dedicated page with `noindex,nofollow`,
-referral hidden field, different copy (no "dental anxiety" language).
-Git commit d77a399 added this page.
-**Rationale:** INFERRED — dentist-specific landing page that doesn't expose
-the dental anxiety framing; noindex to keep it unlisted.
-
 ## ADR-008: Dark theme adapted from Quantum Aikido
 
 **Status:** OBSERVED

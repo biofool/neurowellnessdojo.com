@@ -2,9 +2,9 @@
 
 ## PHP Conventions
 
-### strict_types — strongly recurring (4 files)
+### strict_types — strongly recurring (3 files)
 `declare(strict_types=1);` at top of files with logic:
-- `index.php:2`, `submit.php:2`, `contact.php:2`, `KC-dds-ref/index.php:2`
+- `index.php:2`, `submit.php:2`, `contact.php:2`
 - NOT present in: `privacy.php`, `thank-you.php`, `404.php`, `includes/head.php`,
   `includes/footer.php` (static content / no function definitions)
 
@@ -17,13 +17,11 @@ All shared functions prefixed with `nwd_`:
 All dynamic HTML output uses `htmlspecialchars($val, ENT_QUOTES, 'UTF-8')`:
 - `index.php:49,62,67,147,148` — variant terms, CSRF token
 - `contact.php:37,38,63` — CSRF token, variant, email
-- `KC-dds-ref/index.php:54,59,67,68,69` — variant terms, CSRF, referral
 - `head.php:18,19` — meta_robots, page_title
 
 ### Include pattern — strongly recurring
 Pages use `require __DIR__ . '/config.php'` and `require __DIR__ . '/includes/...'`:
 - All pages with logic follow: config → mail → (maintenance check) → variant → head → content → footer
-- Subdirectory pages use `__DIR__ . '/../config.php'` (KC-dds-ref)
 
 ### Config access — strongly recurring
 Config is a PHP array returned by `require`:
@@ -61,7 +59,7 @@ Intake forms share this structure:
 ### CSS — single file convention
 - All styles in `assets/css/styles.css` (405 lines)
 - CSS custom properties in `:root` for theming
-- No preprocessor, no CSS modules, no inline styles (one exception: `KC-dds-ref/index.php:87`)
+- No preprocessor, no CSS modules, no inline styles
 
 ### Test convention
 - Python/pytest integration tests in `tests/test_pages.py`

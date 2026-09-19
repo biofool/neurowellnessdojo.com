@@ -114,48 +114,6 @@ def test_404_page_returns_404():
 
 
 # ---------------------------------------------------------------------------
-# KC-dds-ref referral page
-# ---------------------------------------------------------------------------
-
-def test_kc_dds_ref_200():
-    r = requests.get(f"{BASE}/KC-dds-ref/")
-    assert r.status_code == 200
-    assert not has_php_errors(r.text)
-
-
-def test_kc_dds_ref_content():
-    r = requests.get(f"{BASE}/KC-dds-ref/")
-    assert "Dr. Clemans" in r.text
-    assert "Relaxation" in r.text
-    assert "Request your free session" in r.text
-
-
-def test_kc_dds_ref_is_noindex():
-    r = requests.get(f"{BASE}/KC-dds-ref/")
-    assert "noindex" in r.text.lower()
-
-
-def test_kc_dds_ref_no_dental_anxiety_language():
-    lower = requests.get(f"{BASE}/KC-dds-ref/").text.lower()
-    assert "dental anxiety" not in lower
-    assert "dental chair" not in lower
-    assert "dental setting" not in lower
-
-
-def test_kc_dds_ref_has_intake_form():
-    r = requests.get(f"{BASE}/KC-dds-ref/")
-    assert 'name="name"' in r.text
-    assert 'name="email"' in r.text
-    assert 'name="csrf"' in r.text
-
-
-def test_kc_dds_ref_referral_field():
-    r = requests.get(f"{BASE}/KC-dds-ref/")
-    assert 'name="referral"' in r.text
-    assert 'value="KC-dds-ref"' in r.text
-
-
-# ---------------------------------------------------------------------------
 # submit.php security
 # ---------------------------------------------------------------------------
 
@@ -185,15 +143,14 @@ def test_submit_rejects_wrong_csrf():
 
 def test_honeypot_gives_silent_redirect():
     s = requests.Session()
-    page = s.get(f"{BASE}/KC-dds-ref/")
+    page = s.get(f"{BASE}/contact.php")
     csrf = csrf_from(page.text)
-    assert csrf is not None, "No CSRF token found on KC-dds-ref page"
+    assert csrf is not None, "No CSRF token found on contact page"
     r = s.post(f"{BASE}/submit.php", data={
         "csrf": csrf,
         "name": "Bot",
         "email": "bot@example.com",
         "variant": "A",
-        "referral": "KC-dds-ref",
         "website": "http://spam.com",  # honeypot field filled
     }, allow_redirects=False)
     assert r.status_code == 302

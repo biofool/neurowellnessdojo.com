@@ -45,7 +45,7 @@ graph LR
 
 ### 1. Page Visit (GET)
 ```
-Visitor → index.php/contact.php/KC-dds-ref/index.php
+Visitor → index.php/contact.php
   → require config.php
   → require includes/mail.php → nwd_notify_visit() (throttled email)
   → require includes/variant.php → nwd_variant() (cookie read/set)

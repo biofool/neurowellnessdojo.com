@@ -9,7 +9,6 @@ pass_plan:
     - index.php
     - contact.php
     - submit.php
-    - KC-dds-ref/index.php
     - privacy.php
     - thank-you.php
     - 404.php
@@ -77,7 +76,7 @@ artifacts:
     source_paths: [index.php, submit.php, includes/, apps-script.gs, .htaccess]
     last_verified_revision: d77a399
   - path: .ai-context/architecture/frontend.md
-    source_paths: [index.php, contact.php, privacy.php, thank-you.php, 404.php, KC-dds-ref/index.php]
+    source_paths: [index.php, contact.php, privacy.php, thank-you.php, 404.php]
     last_verified_revision: d77a399
   - path: .ai-context/architecture/infrastructure.md
     source_paths: [.htaccess, sync.sh, config.example.php, robots.txt, sitemap.xml]

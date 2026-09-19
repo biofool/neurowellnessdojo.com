@@ -5,7 +5,7 @@
 ## Entry Point
 
 Call to `nwd_variant(array $config): string` in `includes/variant.php`,
-invoked by `index.php:31`, `contact.php:17`, `KC-dds-ref/index.php:22`.
+invoked by `index.php:31`, `contact.php:17`.
 
 ## Execution Path
 

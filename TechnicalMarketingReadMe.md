@@ -46,8 +46,6 @@ A/B testing, intake forms, and Google Sheets integration.
 - **Google Apps Script integration** — Ready-to-deploy Apps Script that
   appends intake submissions to a Google Sheet with timestamp, name, email,
   message, and variant (`apps-script.gs`).
-- **KC-DDS referral page** — Dedicated referral page for Dr. Clemans's
-  practice with `noindex,nofollow` meta robots (`KC-dds-ref/index.php`).
 
 ## Technical Differentiators
 

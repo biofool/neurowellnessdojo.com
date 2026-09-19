@@ -38,7 +38,6 @@ and redirects to thank-you page.
 |----------|-----|
 | `index.php` (unlocked) | Form action="/submit.php" |
 | `contact.php` | Form action="/submit.php" |
-| `KC-dds-ref/index.php` | Form action="/submit.php" |
 
 ## Security Controls (in order)
 

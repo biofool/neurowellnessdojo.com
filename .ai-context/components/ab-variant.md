@@ -42,7 +42,6 @@ word swaps for page rendering.
 |----------|-------|
 | `index.php` | `nwd_variant()`, `nwd_terms()` — both locked and unlocked views |
 | `contact.php` | `nwd_variant()`, `nwd_terms()` |
-| `KC-dds-ref/index.php` | `nwd_variant()`, `nwd_terms()` + inline variant conditional |
 | `submit.php` | `require` only (variant received via POST, not called) |
 
 ## Cookie Configuration

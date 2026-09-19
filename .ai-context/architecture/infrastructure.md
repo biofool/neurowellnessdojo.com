@@ -77,8 +77,7 @@ not used by this site:
 | `sitemap.xml` | 3 URLs: `/`, `/contact.php`, `/privacy.php` (lastmod 2026-05-20) |
 | `includes/head.php` | Per-page `<meta name="robots">` (default `index,follow`) |
 
-**Note:** `sitemap.xml` does not include `KC-dds-ref/` (intentional — it's
-`noindex,nofollow`). It also doesn't include `thank-you.php` or `404.php`.
+**Note:** `sitemap.xml` doesn't include `thank-you.php` or `404.php`.
 
 **Evidence:** OBSERVED — `robots.txt`, `sitemap.xml`, `head.php:18`.
 

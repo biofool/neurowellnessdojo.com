@@ -27,7 +27,7 @@ cp config.example.php config.php
 
 ## Architectural Boundaries
 
-- **Pages** (`*.php` at root + `KC-dds-ref/`): render HTML, include shared parts
+- **Pages** (`*.php` at root): render HTML, include shared parts
 - **Includes** (`includes/*.php`): reusable functions (head, variant, mail, footer)
 - **Config** (`config.php`): PHP array returned via `require`; gitignored
 - **Styling** (`assets/css/styles.css`): single monolithic CSS file, dark theme
@@ -43,11 +43,11 @@ cp config.example.php config.php
 
 ## Coding Patterns
 
-- `declare(strict_types=1)` at top of PHP files with logic (OBSERVED: 4 files)
+- `declare(strict_types=1)` at top of PHP files with logic (OBSERVED: 3 files)
 - `htmlspecialchars($val, ENT_QUOTES, 'UTF-8')` for all HTML output (OBSERVED)
 - Functions prefixed `nwd_` in includes (OBSERVED: `nwd_variant`, `nwd_terms`, `nwd_send_mail`, `nwd_notify_visit`)
 - Session-based CSRF: generated in `head.php`, validated in `submit.php`
-- Honeypot field `website` on forms with intake (index unlocked, KC-dds-ref)
+- Honeypot field `website` on forms with intake (index unlocked)
 
 ## Highest-Risk Areas
 

@@ -10,10 +10,9 @@
 | Privacy | `privacy.php` | No | No | No | `index,follow` (default) |
 | Thank you | `thank-you.php` | No | No | No | `index,follow` (default) |
 | 404 | `404.php` | No | No | No | `index,follow` (default) |
-| KC referral | `KC-dds-ref/index.php` | No | Yes | Yes (with referral field) | `noindex,nofollow` |
 
-**Evidence:** OBSERVED — `index.php:21-28` (code gate), `KC-dds-ref/index.php:16`
-(`$meta_robots = 'noindex,nofollow'`), `includes/head.php:18` (meta robots output).
+**Evidence:** OBSERVED — `index.php:21-28` (code gate),
+`includes/head.php:18` (meta robots output).
 
 ## Rendering Pipeline
 
@@ -32,11 +31,8 @@ All pages follow the same include pattern:
 10. include __DIR__ . '/includes/footer.php';      // footer + closing tags
 ```
 
-**Variation:** `KC-dds-ref/index.php` uses `__DIR__ . '/../config.php'` and
-`__DIR__ . '/../includes/...'` (subdirectory path adjustment).
-
-**Evidence:** OBSERVED — consistent pattern across `index.php`, `contact.php`,
-`KC-dds-ref/index.php`. `privacy.php`, `thank-you.php`, `404.php` are simpler
+**Evidence:** OBSERVED — consistent pattern across `index.php`, `contact.php`.
+`privacy.php`, `thank-you.php`, `404.php` are simpler
 (no variant/mail include).
 
 ## Shared Includes Detail
@@ -81,7 +77,6 @@ Two intake form variants exist, both POST to `/submit.php`:
 |---------------|----------|----------------|-------------------|
 | `index.php` (unlocked) | Yes | No | "Dr. Clemans will never see what you wrote." |
 | `contact.php` | No | No | "Your comments are private between you and your coach." |
-| `KC-dds-ref/index.php` | Yes | Yes (`KC-dds-ref`) | "Dr. Clemans will never see what you wrote." |
 
-**Evidence:** OBSERVED — `index.php:150-153` (honeypot), `KC-dds-ref/index.php:69`
-(referral hidden field), `contact.php:55` (no honeypot).
+**Evidence:** OBSERVED — `index.php:150-153` (honeypot),
+`contact.php:55` (no honeypot).

@@ -187,11 +187,11 @@
   evidence_type: OBSERVED
   impact: 3   # lost tracking dimension
   likelihood: 5  # always happens when webhook is used
-  reach: 3    # KC-dds-ref submissions only (only form sending referral)
+  reach: 1    # no current form sends referral (submit.php still accepts it)
   priority_score: 45
   verification: >
-    Submit via KC-dds-ref form with webhook configured — confirm Sheet
-    row has no referral column.
+    POST to submit.php with a referral field and webhook configured —
+    confirm Sheet row has no referral column.
   remediation: >
     Add data.referral to appendRow in apps-script.gs and add "referral"
     header to the Sheet.
@@ -208,7 +208,7 @@
   evidence_type: OBSERVED
   impact: 4   # privacy compliance
   likelihood: 4  # fires on every first visit per session per page
-  reach: 4    # index, contact, KC-dds-ref
+  reach: 4    # index, contact
   priority_score: 64
   verification: >
     Read privacy.php — confirm no mention of IP/UA collection. Trigger
@@ -239,7 +239,7 @@
   classification: architectural-risk
   summary: >
     Honeypot field is absent from contact.php (removed per commit 1b20ec5).
-    Only 2 of 3 forms (index.php unlocked, KC-dds-ref) have bot protection.
+    Only 1 of 2 forms (index.php unlocked) has bot protection.
     contact.php relies solely on CSRF and rate limiting.
   location:
     - contact.php:36-58  # no honeypot field
@@ -249,7 +249,7 @@
   reach: 2    # contact.php only
   priority_score: 12
   verification: >
-    grep -L 'website' contact.php index.php KC-dds-ref/index.php —
+    grep -L 'website' contact.php index.php —
     contact.php is the only form without the honeypot.
   remediation: >
     Re-add honeypot to contact.php, or document the intentional decision.

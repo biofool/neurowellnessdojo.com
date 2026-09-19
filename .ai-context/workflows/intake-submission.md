@@ -7,7 +7,6 @@
 HTTP POST to `/submit.php` from any intake form:
 - `index.php` (unlocked view, form at line 146)
 - `contact.php` (form at line 36)
-- `KC-dds-ref/index.php` (form at line 66)
 
 ## Execution Path
 

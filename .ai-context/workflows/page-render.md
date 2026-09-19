@@ -5,7 +5,7 @@
 ## Entry Point
 
 HTTP GET to any page: `/`, `/contact.php`, `/privacy.php`, `/thank-you.php`,
-`/404.php`, `/KC-dds-ref/`
+`/404.php`
 
 ## Execution Path (index.php as example)
 
@@ -56,7 +56,6 @@ HTTP GET to any page: `/`, `/contact.php`, `/privacy.php`, `/thank-you.php`,
 |------|--------|------|---------|-------------|-----------|
 | index.php | Yes | Yes | Yes | Yes | Yes |
 | contact.php | Yes | Yes | Yes | Yes | No |
-| KC-dds-ref/index.php | Yes | Yes | Yes | Yes | No |
 | privacy.php | No | No | No | No | No |
 | thank-you.php | No | No | No | No | No |
 | 404.php | No | No | No | No | No |
@@ -69,7 +68,7 @@ HTTP GET to any page: `/`, `/contact.php`, `/privacy.php`, `/thank-you.php`,
 | head.php session/CSRF | `head.php:7-12` | `test_contact_has_intake_form` (CSRF present) |
 | Code gate (locked) | `index.php:20-28` | `test_home_shows_code_gate_when_locked`, `test_home_unlocks_with_correct_code`, `test_home_shows_error_on_wrong_code` |
 | Variant assignment | `variant.php:5-28` | (indirectly via page render tests) |
-| Page render | all pages | `test_home_200`, `test_contact_200`, `test_privacy_200`, `test_thankyou_200`, `test_404_page_returns_404`, `test_kc_dds_ref_200` |
+| Page render | all pages | `test_home_200`, `test_contact_200`, `test_privacy_200`, `test_thankyou_200`, `test_404_page_returns_404` |
 
 ## Failure Paths
 

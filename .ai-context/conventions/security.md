@@ -9,10 +9,10 @@
 - **Scope:** Per-session (not per-request); token reused across multiple forms in same session
 - **Evidence:** OBSERVED
 
-### Honeypot — strongly recurring (2 of 3 forms)
+### Honeypot — strongly recurring (1 of 2 forms)
 - **Field:** `website` (hidden via CSS `.hp` class, `aria-hidden="true"`)
 - **Behavior:** If filled → 302 redirect to thank-you (silent success, no email)
-- **Present in:** `index.php:150-153` (unlocked), `KC-dds-ref/index.php:71-74`
+- **Present in:** `index.php:150-153` (unlocked)
 - **NOT present in:** `contact.php` (per git commit 1b20ec5: "Drop honeypot field from contact form")
 - **Evidence:** OBSERVED
 

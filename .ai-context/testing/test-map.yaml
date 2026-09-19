@@ -19,7 +19,6 @@ all_pages:
     - "php -l includes/variant.php"
     - "php -l includes/mail.php"
     - "php -l includes/footer.php"
-    - "php -l KC-dds-ref/index.php"
     - "php -l config.example.php"
   lint: []
 
@@ -39,13 +38,6 @@ page_rendering:
     - "php -l privacy.php"
     - "php -l thank-you.php"
     - "php -l 404.php"
-  lint: []
-
-kc_dds_ref:
-  integration:
-    - "pytest tests/ -k kc_dds_ref"
-  typecheck:
-    - "php -l KC-dds-ref/index.php"
   lint: []
 
 ab_variant:

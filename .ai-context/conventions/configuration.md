@@ -18,7 +18,7 @@
 | `site_url` | string (URL) | `https://neurowellnessdojo.com` | (declared but not used in code) |
 | `variant_cookie` | string | `nwd_variant` | variant.php |
 | `variant_cookie_ttl` | int (seconds) | `31536000` (1 year) | variant.php |
-| `maintenance` | bool | `false` | index.php, contact.php, KC-dds-ref/index.php |
+| `maintenance` | bool | `false` | index.php, contact.php |
 
 **Evidence:** OBSERVED — `config.example.php:5-29`, `config.php:5-29`.
 

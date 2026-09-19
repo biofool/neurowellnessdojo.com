@@ -16,7 +16,7 @@ deployable unit on shared hosting (peec.biz). ~2K LOC across 45 files.
 | Framework | None — plain PHP with `require` includes |
 | Build | None — files served directly |
 | Deploy | `./sync.sh --remote peec.biz` (rsync over SSH) |
-| Tests | `pytest tests/` (19 tests, starts PHP built-in server) |
+| Tests | `pytest tests/` (13 tests, starts PHP built-in server) |
 | Config | `config.php` (gitignored), copy from `config.example.php` |
 | Data | Email via PHP `mail()` + optional Google Sheets webhook |
 
@@ -27,7 +27,6 @@ deployable unit on shared hosting (peec.biz). ~2K LOC across 45 files.
 | Home (code-gated) | `index.php` | Landing page; referral code gate unlocks intake form |
 | Contact | `contact.php` | Standalone intake form (no code gate) |
 | Form handler | `submit.php` | CSRF, honeypot, rate-limit, email, Sheets webhook |
-| Referral page | `KC-dds-ref/index.php` | Dentist-specific landing (noindex) with referral field |
 | Privacy | `privacy.php` | Privacy policy (static content) |
 | Thank you | `thank-you.php` | Post-submission confirmation |
 | 404 | `404.php` | Error page (routed via .htaccess) |
