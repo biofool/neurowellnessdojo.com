@@ -1,4 +1,4 @@
-<!-- AI coding config version: 2026-07-25 — sourced from biofool/starter template. Shared settings across all biofool projects; see ~/.codeium/windsurf/memories/shared_template_config.md -->
+<!-- AI coding config version: 2026-10-03 — sourced from biofool/starter template. Shared settings across all biofool projects; see ~/.codeium/windsurf/memories/shared_template_config.md -->
 
 # CLAUDE.md
 
@@ -69,4 +69,12 @@ Google Apps Script webhook deployed separately. Receives POST from `submit.php`,
 - Enables HTTPS redirect (commented out; uncomment after SSL install)
 - Routes unknown paths to `404.php`
 - Caches CSS assets for 7 days
+
+
+## Global conventions (apply to every project)
+
+- **Reply in Simplified Technical English (STE).** Write chat replies in
+  STE: short sentences, active voice, one instruction per sentence,
+  consistent terminology, no unexplained jargon. Applies to chat output
+  only — code, commit messages, and docs keep their normal style.
 
