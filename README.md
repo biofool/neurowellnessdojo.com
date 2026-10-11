@@ -34,9 +34,19 @@ cp config.example.php config.php
 
 Open `config.php`. Set `intake_email` to wherever you want intake submissions sent (default: `coach@neurowellnessdojo.com`). Set `mail_from` to a noreply alias on the same domain — shared hosts reject mail with a mismatched From.
 
-### 2. Upload
+### 2. Deploy
 
-SFTP / rsync / git pull the directory to your webroot (or a subdirectory if you're running it under another site).
+Use `sync.sh` — it auto-detects the site name from its directory, rsyncs over
+SSH (`~/.ssh/quantumaikido_ed25519`), and shows a dry-run preview before any
+change:
+
+```
+./sync.sh --remote peec.biz upload
+./sync.sh dryrun          # preview only, no prompt
+./sync.sh help            # full command list (download, logs, etc.)
+```
+
+Generic alternative: SFTP / rsync / git pull the directory to your webroot:
 
 ```
 rsync -av --exclude='.git' ./ user@host:/var/www/neurowellnessdojo/
@@ -81,7 +91,21 @@ To stop the test and lock to one variant: set `nwd_variant` cookie manually in y
 - **Honeypot field** in the form catches dumb bots. Real users never see it; bots filling every field will trip it and get a silent fake-success redirect.
 - **CSRF token** stored in session, regenerated per form load, burned on submit.
 - **`index,follow`** is set in the page head — the page is currently indexable. Change to `noindex,nofollow` in `includes/head.php` if you want to keep it off search engines.
-- **No external JS** loads. The only third-party request is the Lora webfont from Google. To run fully zero-third-party, self-host the font and edit `includes/head.php`.
+- **No external JS or third-party requests** — fonts come from the system stack in `assets/css/styles.css`. The only outbound call is the optional Sheets webhook.
+
+## Tests
+
+`tests/test_pages.py` is a pytest integration suite. It starts `php -S` on
+the repo root and checks page rendering, the code gate, and `submit.php`
+security (method, CSRF, honeypot).
+
+```
+pip install pytest requests
+pytest tests/
+```
+
+Note: `php -S` ignores `.htaccess`, so the config/includes deny rules are not
+covered by the suite.
 
 ## Privacy policy
 
